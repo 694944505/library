@@ -34,6 +34,8 @@ public class ConsensusMessage extends SystemMessage {
     private byte[] value = null; // Value used when message type is PROPOSE
     private Object proof; // Proof used when message type is COLLECT
                               // Can be either a MAC vector or a signature
+    private Object LCset; // Leader change set used when message type is CONFLICT  
+    private int reg; // consensus view number
 
     /**
      * Creates a consensus message. Not used. TODO: How about making it private?
@@ -58,10 +60,28 @@ public class ConsensusMessage extends SystemMessage {
         this.epoch = epoch;
         this.value = value;
         //this.macVector = proof;
-
+        this.reg=0;
     }
+    /**
+     * Creates a consensus message. Used by the message factory to create a CHECK message
+     * @param paxosType This should be MessageFactory.COLLECT or MessageFactory.PROPOSE
+     * @param id Consensus's ID
+     * @param epoch Epoch timestamp
+     * @param from This should be this process ID
+     * @param value This should be null if its a COLLECT message, or the proposed value if it is a PROPOSE message
+     * @param reg consensus view number
+     */
+    public ConsensusMessage(int paxosType, int id,int epoch,int from, byte[] value,int reg){
 
+        super(from);
 
+        this.paxosType = paxosType;
+        this.number = id;
+        this.epoch = epoch;
+        this.value = value;
+        //this.macVector = proof;
+        this.reg=reg;
+    }
     /**
      * Creates a consensus message. Used by the message factory to create a FREEZE message
      * TODO: How about removing the modifier, to make it visible just within the package?
@@ -85,7 +105,7 @@ public class ConsensusMessage extends SystemMessage {
         out.writeInt(number);
         out.writeInt(epoch);
         out.writeInt(paxosType);
-
+        out.writeInt(reg);
         if(value == null) {
 
             out.writeInt(-1);
@@ -107,6 +127,16 @@ public class ConsensusMessage extends SystemMessage {
         else {
             out.writeBoolean(false);
         }
+        if(this.LCset != null) {
+
+            out.writeBoolean(true);
+            out.writeObject(LCset);
+
+        }
+        
+        else {
+            out.writeBoolean(false);
+        }
 
     }
 
@@ -119,7 +149,7 @@ public class ConsensusMessage extends SystemMessage {
         number = in.readInt();
         epoch = in.readInt();
         paxosType = in.readInt();
-
+        reg = in.readInt();
         int toRead = in.readInt();
 
         if(toRead != -1) {
@@ -138,6 +168,11 @@ public class ConsensusMessage extends SystemMessage {
         if (asProof) {
             
             proof = in.readObject();
+        }
+        boolean asLCset = in.readBoolean();
+        if (asLCset) {
+            
+            LCset = in.readObject();
         }
         
     }
@@ -175,6 +210,20 @@ public class ConsensusMessage extends SystemMessage {
 
         return proof;
 
+    }
+
+    public void setLCset(Object LCset) {
+        
+        this.LCset = LCset;
+    }
+    
+    /**
+     * Returns the leader change set associated with a CONFLICT message
+     * @return The leader change set
+     */
+    public Object getLCset() {
+
+        return LCset;
     }
 
     /**
@@ -216,6 +265,14 @@ public class ConsensusMessage extends SystemMessage {
     public String toString() {
         return "type="+getPaxosVerboseType()+", number="+getNumber()+", epoch="+
                 getEpoch()+", from="+getSender();
+    }
+
+    /*
+     * Returns the consensus view number
+     * @return consensus view number
+     */
+    public int getReg() {
+        return reg;
     }
 
 }

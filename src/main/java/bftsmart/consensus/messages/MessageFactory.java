@@ -24,6 +24,8 @@ public class MessageFactory{
     public static final int PROPOSE = 44781;
     public static final int WRITE    = 44782;
     public static final int ACCEPT  = 44783;
+    public static final int CHECK  = 44784;
+    public static final int CONFILICT  = 44785;
 
     private int from; // Replica ID of the process which sent this message
 
@@ -71,12 +73,33 @@ public class MessageFactory{
      * @param value Accepted value
      * @return A consensus message of the ACCEPT type, with the specified id, epoch, and value
      */
-    public ConsensusMessage createAccept(int id, int epoch, byte[] value) {
+    public ConsensusMessage createAccept(int id, int epoch, byte[] value, int reg) {
 
-        return new ConsensusMessage(ACCEPT,id,epoch, from, value);
+        return new ConsensusMessage(ACCEPT,id,epoch, from, value, reg);
 
     }
 
+    /*
+     * Creates a CHECK message to be sent by this process
+     * @param id Consensus's execution ID
+     * @param epoch Epoch number
+     * @param value Accepted value
+     */
+    public ConsensusMessage createCheck(int id, int epoch, byte[] value, int reg) {
+            
+        return new ConsensusMessage(CHECK,id,epoch, from, value, reg);
 
+    }
+
+    /*
+     * Creates a CONFLICT message to be sent by this process
+     * @param id Consensus's execution ID
+     * @param epoch Epoch number
+     * @param value Accepted value
+     */
+    public ConsensusMessage createConflict(int id, int epoch, byte[] value, int reg) {
+            
+        return new ConsensusMessage(CONFILICT,id,epoch, from, value, reg);
+    }
 }
 

@@ -216,6 +216,9 @@ public final class ExecutionManager {
      * @return true in case the message can be executed, false otherwise
      */
     public final boolean checkLimits(ConsensusMessage msg) {
+        if(msg.getType() == MessageFactory.CHECK || msg.getType() == MessageFactory.CONFILICT) {
+            return true;
+        }
         outOfContextLock.lock();
         
         int lastConsId = tomLayer.getLastExec();
@@ -467,7 +470,7 @@ public final class ExecutionManager {
                 if (consensus.isDecided()) {
                     logger.debug("Consensus "
                             + consensus.getId() + " decided.");
-                    break;
+                   // break;
                 }
             }
             logger.debug("[Consensus " + consensus.getId()

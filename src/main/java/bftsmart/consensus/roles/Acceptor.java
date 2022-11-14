@@ -20,9 +20,14 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.security.PrivateKey;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+import org.apache.commons.lang3.tuple.Pair;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +41,13 @@ import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.core.TOMLayer;
 import bftsmart.tom.core.messages.TOMMessage;
+import bftsmart.tom.leaderchange.CertifiedDecision;
+import bftsmart.tom.leaderchange.CollectData;
+import bftsmart.consensus.Decision;
 import bftsmart.tom.util.TOMUtil;
+import bftsmart.accountability.Accountability;
+
+import java.security.SignedObject;
 
 /**
  * This class represents the acceptor role in the consensus protocol. This class
@@ -64,6 +75,12 @@ public final class Acceptor {
 	 */
 	private PrivateKey privKey;
 
+	/*
+	 * Accountability instance
+	 */
+
+	private Accountability accountability;
+
 	/**
 	 * Creates a new instance of Acceptor.
 	 * 
@@ -89,6 +106,7 @@ public final class Acceptor {
 		 * this.proofExecutor = Executors.newWorkStealingPool(nWorkers);
 		 */
 		this.proofExecutor = Executors.newSingleThreadExecutor();
+		this.accountability = new Accountability(factory, logger);
 	}
 
 	public MessageFactory getFactory() {
@@ -113,6 +131,12 @@ public final class Acceptor {
 		this.tomLayer = tom;
 	}
 
+	/*
+	 * get accountability instance
+	 */
+	public Accountability getAccountability() {
+		return this.accountability;
+	}
 	/**
 	 * Called by communication layer to delivery Paxos messages. This method only
 	 * verifies if the message can be executed and calls process message (storing it
@@ -141,19 +165,36 @@ public final class Acceptor {
 
 		consensus.lock.lock();
 		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
+		String type="";
 		switch (msg.getType()) {
-		case MessageFactory.PROPOSE: {
-			proposeReceived(epoch, msg);
+			
+			case MessageFactory.PROPOSE: {
+				type = "PROPOSE";
+				proposeReceived(epoch, msg);
+			}
+				break;
+			case MessageFactory.WRITE: {
+				type = "WRITE";
+				writeReceived(epoch, msg.getSender(), msg.getValue());
+			}
+				break;
+			case MessageFactory.ACCEPT: {
+				type = "ACCEPT";
+				acceptReceived(epoch, msg);
+			}
+				break;
+			case MessageFactory.CHECK: {
+				type = "CHECK";
+				checkReceived(epoch, msg);
+			}
+				break;
+			case MessageFactory.CONFILICT: {
+				type = "CONFLICT";
+				conflictReceived(epoch, msg);
+			}
+				break;
 		}
-			break;
-		case MessageFactory.WRITE: {
-			writeReceived(epoch, msg.getSender(), msg.getValue());
-		}
-			break;
-		case MessageFactory.ACCEPT: {
-			acceptReceived(epoch, msg);
-		}
-		}
+		System.out.println("received " + type + " from " + msg.getSender() + " for consensus " + msg.getNumber());
 		consensus.lock.unlock();
 	}
 
@@ -242,14 +283,14 @@ public final class Acceptor {
 					/*****************************************/
 
 					communication.send(this.controller.getCurrentViewOtherAcceptors(),
-							factory.createAccept(cid, epoch.getTimestamp(), epoch.propValueHash));
+							factory.createAccept(cid, epoch.getTimestamp(), epoch.propValueHash, tomLayer.getSynchronizer().getLCManager().getNextReg()));
 
 					epoch.acceptSent();
 					computeAccept(cid, epoch, epoch.propValueHash);
 				}
 				executionManager.processOutOfContext(epoch.getConsensus());
 
-			} else if (epoch.deserializedPropValue == null 
+			} else if (epoch.deserializedPropValue == null
 					&& !tomLayer.isChangingLeader()) { // force a leader change
 				tomLayer.getSynchronizer().triggerTimeout(new LinkedList<>());
 			}
@@ -265,7 +306,7 @@ public final class Acceptor {
 	 */
 	private void writeReceived(Epoch epoch, int sender, byte[] value) {
 		int cid = epoch.getConsensus().getId();
-		logger.debug("WRITE received from:{}, for consensus cId:{}", 
+		logger.debug("WRITE received from:{}, for consensus cId:{}",
 				sender, cid);
 		epoch.setWrite(sender, value);
 
@@ -285,7 +326,7 @@ public final class Acceptor {
 
 		logger.debug("I have {}, WRITE's for cId:{}, Epoch timestamp:{},", writeAccepted, cid, epoch.getTimestamp());
 
-		if (writeAccepted > controller.getQuorum() 
+		if (writeAccepted > controller.getQuorum()
 				&& Arrays.equals(value, epoch.propValueHash)) {
 
 			if (!epoch.isAcceptSent()) {
@@ -320,7 +361,7 @@ public final class Acceptor {
 				} else { // ... and if not, create the ACCEPT message again (with the correct value), and
 							// send it
 
-					ConsensusMessage correctAccept = factory.createAccept(cid, epoch.getTimestamp(), value);
+					ConsensusMessage correctAccept = factory.createAccept(cid, epoch.getTimestamp(), value, tomLayer.getSynchronizer().getLCManager().getNextReg());
 
 					proofExecutor.submit(() -> {
 
@@ -343,7 +384,7 @@ public final class Acceptor {
 												// the value must be verified before sending the ACCEPT message to the
 												// other replicas
 
-			ConsensusMessage cm = factory.createAccept(cid, epoch.getTimestamp(), value);
+			ConsensusMessage cm = factory.createAccept(cid, epoch.getTimestamp(), value, tomLayer.getSynchronizer().getLCManager().getNextReg());
 			epoch.acceptCreated();
 
 			proofExecutor.submit(() -> {
@@ -416,6 +457,21 @@ public final class Acceptor {
 		if (epoch.countAccept(value) > controller.getQuorum() && !epoch.getConsensus().isDecided()) {
 			logger.debug("Deciding consensus " + cid);
 			decide(epoch);
+			if (controller.getStaticConf().accountabilityEnabled()) {
+				int reg = tomLayer.getSynchronizer().getLCManager().getNextReg();
+				communication.send(this.controller.getCurrentViewOtherAcceptors(),
+						factory.createCheck(cid, epoch.getTimestamp(), epoch.propValueHash, reg));
+				
+				Pair<ConsensusMessage, Vector<Integer>> pair = accountability.addDecision(
+						new CertifiedDecision(me, cid, epoch.propValueHash, epoch.getProof(), reg));
+				if (pair != null) {
+					int [] targets = new int[pair.getValue().size()];
+					for (int i = 0; i < targets.length; i++) {
+						targets[i] = pair.getValue().get(i);
+					}
+					communication.send(targets, pair.getKey());
+				}
+			}
 		}
 	}
 
@@ -430,4 +486,87 @@ public final class Acceptor {
 
 		epoch.getConsensus().decided(epoch, true);
 	}
+
+	/*
+	 * called when a CHECK message is received
+	 *
+	 * @param epoch Epoch of the receives message
+	 * 
+	 * @param a Replica that sent the message
+	 * 
+	 * @param value Value sent in the message
+	 */
+	private void checkReceived(Epoch epoch, ConsensusMessage msg) {
+
+		Pair<ConsensusMessage, Vector<Integer>> pair = accountability.addCheck(msg);
+		if (pair != null) {
+			int [] targets = new int[pair.getValue().size()];
+			for (int i = 0; i < targets.length; i++) {
+				targets[i] = pair.getValue().get(i);
+			}
+			communication.send(targets, pair.getKey());
+		}
+	}
+
+	/*
+	 * called when a CONFLICT message is received
+	 *
+	 * @param epoch Epoch of the receives message
+	 * 
+	 * @param a Replica that sent the message
+	 * ./smartrun.cmd bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 50000 0 0 false nosig
+	 * @param value Value sent in the message
+	 */
+	private void conflictReceived(Epoch epoch, ConsensusMessage msg){
+		try{
+			int cid = epoch.getConsensus().getId();
+			
+			CertifiedDecision dec = new CertifiedDecision(msg.getSender(), msg.getNumber(), msg.getValue(), (Set<ConsensusMessage>) msg.getProof(), msg.getReg());
+			CertifiedDecision decLocal = accountability.getCheck(msg);
+
+			if(tomLayer.getSynchronizer().getLCManager().hasValidProof(dec, false)){
+				if(decLocal.getReg()==dec.getReg()){
+					Set<Integer> suspects= new HashSet<>();
+					List<Integer> guilty = new LinkedList<>();
+					for(ConsensusMessage cm : dec.getConsMessages()){
+						suspects.add(cm.getSender());
+					}
+					for(ConsensusMessage cm : decLocal.getConsMessages()){
+						if(suspects.contains(cm.getSender())){
+							guilty.add(cm.getSender());
+						}
+					}
+					System.out.println("Guilty: " + guilty);
+				}else{
+					CertifiedDecision firstDec;
+					HashSet<SignedObject> LCSet;
+					if(dec.getReg()<decLocal.getReg()){
+						firstDec = dec;
+						LCSet = accountability.getLCset(decLocal.getReg());
+					}else{
+						firstDec = decLocal;
+						LCSet = (HashSet<SignedObject>) msg.getLCset();
+					}
+					HashSet<CollectData> LCSetSenders = tomLayer.getSynchronizer().getLCManager().getSignedCollects(LCSet);
+					Set<Integer> suspects= new HashSet<>();
+					List<Integer> guilty = new LinkedList<>();
+					for(CollectData d : LCSetSenders){
+						suspects.add(d.getPid());
+					}
+					for(ConsensusMessage cm : firstDec.getConsMessages()){
+						if(suspects.contains(cm.getSender())){
+							guilty.add(cm.getSender());
+						}
+					}
+					System.out.println("Guilty: " + guilty);
+				}
+
+				// TODO
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 }

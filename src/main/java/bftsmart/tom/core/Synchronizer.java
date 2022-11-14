@@ -1205,9 +1205,10 @@ public class Synchronizer {
             } else {
                 logger.info("Sending ACCEPT message for CID " + currentCID + ", timestamp " + e.getTimestamp() + ", value " + Arrays.toString(e.propValueHash));
                 communication.send(this.controller.getCurrentViewOtherAcceptors(),
-                        acceptor.getFactory().createAccept(currentCID, e.getTimestamp(), e.propValueHash));
+                        acceptor.getFactory().createAccept(currentCID, e.getTimestamp(), e.propValueHash, regency));
                 e.acceptSent();
             }
+            acceptor.getAccountability().addLC(regency, signedCollects);
         } else {
             logger.warn("Sync phase failed for regency" + regency);
         }

@@ -33,6 +33,7 @@ public class CertifiedDecision implements Externalizable {
     private int cid; // execution id
     private byte[] decision; // decision value
     private Set<ConsensusMessage>  consMsgs; // proof of the decision
+    int reg = 0; // consensus view number
     
     /**
      * Empty constructor
@@ -60,6 +61,23 @@ public class CertifiedDecision implements Externalizable {
         this.consMsgs = consMsgs;
     }
 
+    /*
+     * Constructor
+     * 
+     * @param pid process id
+     * @param cid execution id
+     * @param decision decision value
+     * @param consMsgs proof of the decision in the form of authenticated Consensus Messages
+     * @param reg consensus view number
+     */
+    public CertifiedDecision(int pid, int cid, byte[] decision, Set<ConsensusMessage> consMsgs, int reg) {
+
+        this.pid = pid;
+        this.cid = cid;
+        this.decision = decision;
+        this.consMsgs = consMsgs;
+        this.reg = reg;
+    }
     /**
      * Get consensus ID
      * @return consensus ID
@@ -121,5 +139,9 @@ public class CertifiedDecision implements Externalizable {
         cid = in.readInt();
         decision = (byte[]) in.readObject();
         consMsgs = (Set<ConsensusMessage>) in.readObject();
+    }
+
+    public int getReg() {
+        return reg;
     }
 }

@@ -703,7 +703,7 @@ public class LCManager {
     }
 
     // Filters the correctly signed collects
-    private HashSet<CollectData> getSignedCollects(HashSet<SignedObject> signedCollects) {
+    public HashSet<CollectData> getSignedCollects(HashSet<SignedObject> signedCollects) {
 
         HashSet<CollectData> colls = new HashSet<CollectData>();
 
@@ -784,15 +784,23 @@ public class LCManager {
 
         return highest;
     }
-    
+
     // verifies is a proof associated with a decided value is valid
     public boolean hasValidProof(CertifiedDecision cDec) {
+        return hasValidProof(cDec, true);
+
+    }
+    
+    // verifies is a proof associated with a decided value is valid
+    public boolean hasValidProof(CertifiedDecision cDec, boolean needHash) {
         
         if (cDec.getCID() == -1) return true; // If the last CID is -1 it means the replica
                                              // did not complete any consensus and cannot have
                                              // any proof
         
-        byte[] hashedValue = md.digest(cDec.getDecision());
+        byte[] hashedValue;
+        if(needHash) hashedValue= md.digest(cDec.getDecision());
+        else hashedValue = cDec.getDecision();
         Set<ConsensusMessage> ConsensusMessages = cDec.getConsMessages();
         int certificateCurrentView = (2*tomLayer.controller.getCurrentViewF()) + 1;
         int certificateLastView = -1;
@@ -818,11 +826,12 @@ public class LCManager {
 
             if (consMsg.getProof() instanceof byte[]) { // certificate is made of signatures
                 
-                logger.debug("Proof made of Signatures");
+                
                 pubKey = SVController.getStaticConf().getPublicKey(consMsg.getSender());
                    
                 byte[] signature = (byte[]) consMsg.getProof();
-                            
+                logger.debug("Proof made of Signatures" +Arrays.equals(consMsg.getValue(), hashedValue) + TOMUtil.verifySignature(pubKey, data, signature)+
+                !alreadyCounted.contains(consMsg.getSender()));
                 if (Arrays.equals(consMsg.getValue(), hashedValue) &&
                         TOMUtil.verifySignature(pubKey, data, signature) && !alreadyCounted.contains(consMsg.getSender())) {
                     

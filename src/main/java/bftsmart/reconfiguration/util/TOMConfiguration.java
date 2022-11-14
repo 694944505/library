@@ -72,7 +72,8 @@ public class TOMConfiguration extends Configuration {
     private String keyStoreFile;
     private String [] enabledCiphers;
 
-
+    /* accountability */
+    private boolean accountabilityEnabled;
     /** Creates a new instance of TOMConfiguration */
     public TOMConfiguration(int processId, KeyLoader loader) {
         super(processId, loader);
@@ -432,6 +433,13 @@ public class TOMConfiguration extends Configuration {
                 clientInvokeOrderedTimeout = Integer.parseInt(s);
             }
 
+            s = (String) configs.remove("system.accountabilityEnabled");
+            if (s == null) {
+                accountabilityEnabled = true;
+            } else {
+                accountabilityEnabled = Boolean.parseBoolean(s);
+            }
+
         } catch (Exception e) {
             logger.error("Could not parse system configuration file",e);
         }
@@ -640,5 +648,9 @@ public class TOMConfiguration extends Configuration {
 	public String[] getEnabledCiphers() {
 		return enabledCiphers;
 	}
+
+    public boolean accountabilityEnabled() {
+        return accountabilityEnabled;
+    }
 
 }
