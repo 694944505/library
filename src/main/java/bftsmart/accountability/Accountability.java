@@ -24,7 +24,7 @@ import org.bouncycastle.cms.DefaultCMSSignatureEncryptionAlgorithmFinder;
 
 public class Accountability {
     private Logger logger;
-    private boolean test = true;
+    private boolean test = false;
     // <cid, decision>
     private final HashMap<Integer, CertifiedDecision> decisionMap = new HashMap<>();
     // <cid, proof>

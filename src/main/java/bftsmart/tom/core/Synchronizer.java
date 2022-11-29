@@ -810,7 +810,7 @@ public class Synchronizer {
         switch (msg.getType()) {
             case TOMUtil.STOP: { // message STOP
 
-                logger.info("Last regency: " + lcManager.getLastReg() + ", next regency: " + lcManager.getNextReg());
+                logger.info("time out Last regency: " + lcManager.getLastReg() + ", next regency: " + lcManager.getNextReg());
 
                 // this message is for the next leader change?
                 if (msg.getReg() == lcManager.getLastReg() + 1) {
@@ -845,7 +845,7 @@ public class Synchronizer {
 
                 int regency = msg.getReg();
 
-                logger.info("Last regency: " + lcManager.getLastReg() + ", next regency: " + lcManager.getNextReg());
+                logger.info("stop data Last regency: " + lcManager.getLastReg() + ", next regency: " + lcManager.getNextReg());
 
                 // Am I the new leader, and am I expecting this messages?
                 if (regency == lcManager.getLastReg()
@@ -868,7 +868,7 @@ public class Synchronizer {
 
                 int regency = msg.getReg();
 
-                logger.info("Last regency: " + lcManager.getLastReg() + ", next regency: " + lcManager.getNextReg());
+                logger.info("sync Last regency: " + lcManager.getLastReg() + ", next regency: " + lcManager.getNextReg());
 
                 // I am expecting this sync?
                 boolean isExpectedSync = (regency == lcManager.getLastReg() && regency == lcManager.getNextReg());

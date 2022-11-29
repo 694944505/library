@@ -264,4 +264,11 @@ public class Generator {
     public ArrayList<ArrayList<HashSet<Integer>>> getPartitionScenarios(){
         return partitionScenarios;
     }
+
+    public ArrayList<NodeID> getNodes(){
+        return nodes;
+    }
+    public ArrayList<NodeID> getTwins(){
+        return twins;
+    }
 }

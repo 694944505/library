@@ -39,7 +39,10 @@ import bftsmart.tom.util.TOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.security.*;
 import java.util.HashMap;
 import java.util.Timer;
@@ -49,6 +52,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Random;
 
 /**
  * This class implements the state machine replication protocol described in
@@ -103,13 +107,16 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     private final Condition haveMessages = messagesLock.newCondition();
     private final ReentrantLock proposeLock = new ReentrantLock();
     private final Condition canPropose = proposeLock.newCondition();
-
+    private final ReentrantLock randomProposeLock = new ReentrantLock();
+    private final Condition canRandomPropose = randomProposeLock.newCondition();
     private final PrivateKey privateKey;
     private final HashMap<Integer, PublicKey> publicKey;
 
     public ServerViewController controller;
 
     private final Synchronizer syncher;
+    private Random rand;
+    private int reqId = 1;
 
     /**
      * Creates a new instance of TOMulticastLayer
@@ -254,6 +261,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         leaderLock.lock();
         iAmLeader.signal();
         leaderLock.unlock();
+        //canRandomPropose();
     }
 
     /**
@@ -645,5 +653,72 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         if (this.dt != null) this.dt.shutdown();
         if (this.communication != null) this.communication.shutdown();
 
+    }
+
+    public void canRandomPropose() {
+        randomProposeLock.lock();
+        canRandomPropose.signalAll();
+        randomProposeLock.unlock();
+    }
+    public void randomPropose() {
+        // blocks until this replica learns to be the leader for the current epoch of the current consensus
+        leaderLock.lock();
+        logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
+
+        //******* EDUARDO BEGIN **************//
+        if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
+            iAmLeader.awaitUninterruptibly();
+            //waitForPaxosToFinish();
+        }
+        //******* EDUARDO END **************//
+        leaderLock.unlock();
+        // blocks until the current consensus finishes
+        proposeLock.lock();
+
+        if (getInExec() != -1) { //there is some consensus running
+            logger.debug("Waiting for consensus " + getInExec() + " termination.");
+            canPropose.awaitUninterruptibly();
+        }
+        proposeLock.unlock();
+        if(execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
+            return ;
+        }
+        byte []request = new byte[10];
+            
+        rand = new Random(System.nanoTime() + this.controller.getStaticConf().getProcessId());
+        rand.nextBytes(request);
+        
+        byte[] signature = new byte[0];
+        ByteBuffer buffer = ByteBuffer.allocate(request.length + signature.length + (Integer.BYTES * 2));
+        buffer.putInt(request.length);
+        buffer.put(request);
+        buffer.putInt(signature.length);
+        buffer.put(signature);
+        request = buffer.array();
+
+        RequestList pendingRequests = new RequestList();
+        TOMMessage sm = new TOMMessage(
+            this.controller.getStaticConf().getProcessId(), 
+            this.controller.getStaticConf().getProcessId(), 
+            reqId, reqId, 
+            request, controller.getCurrentViewId(), TOMMessageType.ORDERED_REQUEST);
+        DataOutputStream dos = null;
+        
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            dos = new DataOutputStream(baos);
+            sm.wExternal(dos);
+            dos.flush();
+            sm.serializedMessage = baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        pendingRequests.addLast(sm);
+        reqId++;
+
+        byte [] msgs = bb.makeBatch(pendingRequests, this.controller.getStaticConf().getNumberOfNonces(), System.currentTimeMillis(), controller.getStaticConf().getUseSignatures() == 1);
+        
+        execManager.getProposer().startConsensus(getLastExec() + 1, msgs);
+    
     }
 }
