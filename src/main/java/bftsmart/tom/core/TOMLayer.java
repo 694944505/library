@@ -19,6 +19,7 @@ package bftsmart.tom.core;
 import bftsmart.clientsmanagement.ClientsManager;
 import bftsmart.clientsmanagement.RequestList;
 import bftsmart.communication.ServerCommunicationSystem;
+import bftsmart.communication.client.ReplyListener;
 import bftsmart.communication.client.RequestReceiver;
 import bftsmart.consensus.Consensus;
 import bftsmart.consensus.Decision;
@@ -36,11 +37,18 @@ import bftsmart.tom.server.RequestVerifier;
 import bftsmart.tom.util.BatchBuilder;
 import bftsmart.tom.util.BatchReader;
 import bftsmart.tom.util.TOMUtil;
+import bftsmart.tom.AsynchServiceProxy;
+import bftsmart.tom.RequestContext;
+import bftsmart.tom.ServiceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.security.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -49,6 +57,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Random;
 
 /**
  * This class implements the state machine replication protocol described in
@@ -103,13 +112,17 @@ public final class TOMLayer extends Thread implements RequestReceiver {
     private final Condition haveMessages = messagesLock.newCondition();
     private final ReentrantLock proposeLock = new ReentrantLock();
     private final Condition canPropose = proposeLock.newCondition();
-
+    private final ReentrantLock randomProposeLock = new ReentrantLock();
+    private final Condition canRandomPropose = randomProposeLock.newCondition();
     private final PrivateKey privateKey;
     private final HashMap<Integer, PublicKey> publicKey;
 
     public ServerViewController controller;
 
     private final Synchronizer syncher;
+    private Random rand;
+    private int reqId = 1;
+    private AsynchServiceProxy serviceProxy;
 
     /**
      * Creates a new instance of TOMulticastLayer
@@ -199,6 +212,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
             }, 0, controller.getStaticConf().getBatchTimeout());
         }
+        serviceProxy = new AsynchServiceProxy(this.controller.getStaticConf().getProcessId());
     }
 
     /**
@@ -254,6 +268,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         leaderLock.lock();
         iAmLeader.signal();
         leaderLock.unlock();
+        //canRandomPropose();
     }
 
     /**
@@ -457,6 +472,12 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 
                 // Sets the current consensus
                 int execId = getLastExec() + 1;
+                if(this.controller.getGenerator() != null) {
+                   // System.out.println("leader is " + this.controller.getGenerator().getView(execId).getLeaderID());
+                    if(this.controller.getGenerator().getView(execId).getLeaderID() != execManager.getCurrentLeader()) continue;
+                }
+
+                
                 setInExec(execId);
 
                 Decision dec = execManager.getConsensus(execId).getDecision();
@@ -645,5 +666,58 @@ public final class TOMLayer extends Thread implements RequestReceiver {
         if (this.dt != null) this.dt.shutdown();
         if (this.communication != null) this.communication.shutdown();
 
+    }
+
+    public void canRandomPropose() {
+        randomProposeLock.lock();
+        canRandomPropose.signalAll();
+        randomProposeLock.unlock();
+    }
+    public void randomPropose() {
+        // blocks until this replica learns to be the leader for the current epoch of the current consensus
+        /*leaderLock.lock();
+        logger.debug("Next leader for CID=" + (getLastExec() + 1) + ": " + execManager.getCurrentLeader());
+
+        
+        if (execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
+            logger.debug("I am not the leader for CID=" + (getLastExec() + 1) + ". Waiting for the leader to propose a value.");
+            iAmLeader.awaitUninterruptibly();
+            //waitForPaxosToFinish();
+        }
+        
+        leaderLock.unlock();
+        // blocks until the current consensus finishes
+        proposeLock.lock();
+        logger.debug("1I am the leader for CID=" + (getLastExec() + 1) + ". Proposing a value.");
+        if (getInExec() != -1) { //there is some consensus running
+            logger.debug("Waiting for consensus " + getInExec() + " termination.");
+            canPropose.awaitUninterruptibly();
+        }
+        proposeLock.unlock();*/
+        if(execManager.getCurrentLeader() != this.controller.getStaticConf().getProcessId()) {
+            logger.debug("I am not the leader for CID=" + (getLastExec() + 1) + ". Waiting for the leader to propose a value.");
+            return ;
+        }
+        logger.debug("I am the leader for CID=" + (getLastExec() + 1) + ". Proposing a value.");
+        new Thread(() -> {
+            try {
+                byte []request = new byte[10];
+                rand = new Random(System.nanoTime() + this.controller.getStaticConf().getProcessId());
+                rand.nextBytes(request);
+        
+                byte[] signature = new byte[0];
+                ByteBuffer buffer = ByteBuffer.allocate(request.length + signature.length + (Integer.BYTES * 2));
+                buffer.putInt(request.length);
+                buffer.put(request);
+                buffer.putInt(signature.length);
+                buffer.put(signature);
+                request = buffer.array();
+                this.serviceProxy.invokeAsynchRequest(request, null, TOMMessageType.ORDERED_REQUEST);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        
+    
     }
 }

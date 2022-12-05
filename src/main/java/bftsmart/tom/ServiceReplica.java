@@ -45,6 +45,8 @@ import bftsmart.tom.server.defaultservices.DefaultReplier;
 import bftsmart.tom.util.KeyLoader;
 import bftsmart.tom.util.ShutdownHookThread;
 import bftsmart.tom.util.TOMUtil;
+import bftsmart.twins.Generator;
+
 import java.security.Provider;
 
 import org.slf4j.Logger;
@@ -142,6 +144,27 @@ public class ServiceReplica {
         this.replier.setReplicaContext(replicaCtx);
     }
 
+    /**
+     * Constructor
+     *
+     * @param id Replica ID
+     * @param configHome Configuration directory for BFT-SMART
+     * @param executor The executor implementation
+     * @param recoverer The recoverer implementation
+     * @param generator Used for twins attack
+     * @param hasTwins
+     */
+    public ServiceReplica(int id, Executable executor, Recoverable recoverer, Generator generator, boolean hasTwins) {
+        this.id = id;
+        this.SVController = new ServerViewController(id, "", null, generator, hasTwins);
+        this.executor = executor;
+        this.recoverer = recoverer;
+        this.replier = new DefaultReplier();
+        this.verifier = null;
+        this.init();
+        this.recoverer.setReplicaContext(replicaCtx);
+        this.replier.setReplicaContext(replicaCtx);
+    }
     // this method initializes the object
     private void init() {
         try {
@@ -508,5 +531,12 @@ public class ServiceReplica {
      */
     public int getId() {
         return id;
+    }
+
+    /*
+     * @return tomLayer
+     */
+    public TOMLayer getTOMLayer() {
+        return tomLayer;
     }
 }

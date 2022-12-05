@@ -28,7 +28,7 @@ public class Generator {
         this.twins = new ArrayList<NodeID>();
         this.nodes = new ArrayList<NodeID>();
         this.indices = new int[settings.getViews()];
-        this.offsets = new int[settings.getViews()];
+
         leadersPartitions = new ArrayList<View>();
         assignNodeIDs();
 
@@ -38,10 +38,15 @@ public class Generator {
         partitionScenarios = genPartitionScenarios();
 
         for (int i = 0; i < partitionScenarios.size(); i++) {
+            for (int j = 0; j < twins.size(); j+=2) {
+                leadersPartitions.add(new View(twins.get(j).getReplicaID(), partitionScenarios.get(i)));
+            }
             for (int j = 0; j < nodes.size(); j++) {
                 leadersPartitions.add(new View(nodes.get(j).getReplicaID(), partitionScenarios.get(i)));
             }
-        }   
+
+        }
+        this.offsets = new int[leadersPartitions.size()];
         remaining = (long) Math.pow(leadersPartitions.size(), settings.getViews());
         logger.info(remaining + " scenarios can be generated with current settings.");
     }
@@ -88,9 +93,13 @@ public class Generator {
         return scenarios;
     }
     
+    public View getView(int i) {
+        return leadersPartitions.get((i+offsets[i%leadersPartitions.size()])%leadersPartitions.size());
+    }
+
     public void assignNodeIDs() {
-        int replicaID = 1;
-        int networkID = 1;
+        int replicaID = 0;
+        int networkID = 0;
         int remainingTwins = settings.getNumTwins();
         // assign IDs to nodes
         for (int i = 0; i < settings.getNumNodes(); i++) {
@@ -263,5 +272,15 @@ public class Generator {
 
     public ArrayList<ArrayList<HashSet<Integer>>> getPartitionScenarios(){
         return partitionScenarios;
+    }
+
+    public ArrayList<NodeID> getNodes(){
+        return nodes;
+    }
+    public ArrayList<NodeID> getTwins(){
+        return twins;
+    }
+    public int getViewSize(){
+        return settings.getViews();
     }
 }

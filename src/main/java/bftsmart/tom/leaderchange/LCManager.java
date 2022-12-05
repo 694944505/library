@@ -100,7 +100,9 @@ public class LCManager {
      * @return The new leader
      */
     public int getNewLeader() {
-
+        if(SVController.getGenerator() != null){
+            return SVController.getGenerator().getView(nextreg).getLeaderID();
+        }
         int[] proc = SVController.getCurrentViewProcesses();
         int minProc = proc[0];
         int maxProc = proc[0];
@@ -130,6 +132,21 @@ public class LCManager {
         currentLeader = leader;
     }
     
+    /*
+     * @return The current leader
+     */
+    public int getCurrentLeader() {
+        return currentLeader;
+    }
+
+    /*
+     */
+    public boolean needToStartLC() {
+        if(SVController.getGenerator() != null){
+            return SVController.getGenerator().getView(lastreg + 1).getLeaderID() != currentLeader;
+        }
+        return false;
+    }
     /**
      * This is meant to keep track of timed out requests in this replica
      *
@@ -813,7 +830,8 @@ public class LCManager {
         for (ConsensusMessage consMsg : ConsensusMessages) {
             
             ConsensusMessage cm = new ConsensusMessage(consMsg.getType(),consMsg.getNumber(),
-                    consMsg.getEpoch(), consMsg.getSender(), consMsg.getValue());
+                    consMsg.getEpoch(), consMsg.getSender(), consMsg.getValue(), consMsg.getReg());
+            cm.setLCset(consMsg.getLCset());
 
             ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
             try {

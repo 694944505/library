@@ -11,17 +11,19 @@ public class GeneratorTest {
     
     
     public static void TestGenerator() {
-        Generator g = new Generator(new Settings(4, 1, 3, 80), LoggerFactory.getLogger("generator_test"));
-        g.Shuffle(0);
+        Generator g = new Generator(new Settings(4, 1, 1, 1), LoggerFactory.getLogger("generator_test"));
+        //g.Shuffle(0);
         System.out.println("possible Partitions: " );
+
         for(ArrayList<HashSet<Integer>> partitions: g.getPartitionScenarios()){
             for(HashSet<Integer> partition: partitions){
                 System.out.print(partition.toString()+", ");
             }
             System.out.println("");
         }
-        for(View v: g.getNextScenario()){
-            System.out.println(v.toString());
+
+        for(int i=0;i<5;i++){
+            System.out.println(g.getView(i).toString());
         }
     }
     public static void main(String[] args) throws Exception{

@@ -26,6 +26,8 @@ import bftsmart.tom.core.TOMLayer;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.util.KeyLoader;
 import bftsmart.tom.util.TOMUtil;
+import bftsmart.twins.Generator;
+
 import java.security.Provider;
 
 import org.slf4j.Logger;
@@ -50,6 +52,8 @@ public class ServerViewController extends ViewController {
     private List<TOMMessage> updates = new LinkedList<TOMMessage>();
     private TOMLayer tomLayer;
    // protected View initialView;
+    private Generator g = null;
+    private boolean hasTwins = false;
     
     public ServerViewController(int procId, KeyLoader loader) {
         this(procId,"", loader);
@@ -74,7 +78,27 @@ public class ServerViewController extends ViewController {
         }
        
     }
-
+    public ServerViewController(int procId, String configHome, KeyLoader loader, Generator generator, boolean hasTwins) {
+        super(procId, configHome, loader);
+        View cv = getViewStore().readView();
+        if(cv == null){
+            
+            logger.info("Creating current view from configuration file");
+            reconfigureTo(new View(0, getStaticConf().getInitialView(), 
+                getStaticConf().getF(), getInitAdddresses()));
+        }else{
+            logger.info("Using view stored on disk");
+            reconfigureTo(cv);
+        }
+        this.g = generator;
+        this.hasTwins = hasTwins;
+    }
+    public Generator getGenerator(){
+        return g;
+    }
+    public boolean hasTwins(){
+        return hasTwins;
+    }
     private InetSocketAddress[] getInitAdddresses() {
 
         int nextV[] = getStaticConf().getInitialView();
