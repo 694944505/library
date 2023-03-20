@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -46,6 +47,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import bftsmart.communication.SystemMessage;
 import bftsmart.consensus.messages.ConsensusMessage;
+import bftsmart.peerreview.HandleImpl;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.reconfiguration.VMMessage;
 import bftsmart.tom.ServiceReplica;
@@ -56,6 +58,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,10 +80,11 @@ public class ServerConnection {
     private DataOutputStream socketOutStream = null;
     private DataInputStream socketInStream = null;
     private int remoteId;
+	private HandleImpl handle;
     private boolean useSenderThread;
     protected LinkedBlockingQueue<byte[]> outQueue;// = new LinkedBlockingQueue<byte[]>(SEND_QUEUE_SIZE);
     private LinkedBlockingQueue<SystemMessage> inQueue;
-    
+	private LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>> prQueue;
     private Lock connectLock = new ReentrantLock();
     /** Only used when there is no sender Thread */
     private Lock sendLock;
@@ -103,6 +107,7 @@ public class ServerConnection {
     public ServerConnection(ServerViewController controller, 
     		SSLSocket socket, int remoteId,
             LinkedBlockingQueue<SystemMessage> inQueue, 
+			LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>> prQueue,
             ServiceReplica replica) {
 
         this.controller = controller;
@@ -111,7 +116,11 @@ public class ServerConnection {
 
         this.remoteId = remoteId;
 
+		this.handle = new HandleImpl(remoteId);
+
         this.inQueue = inQueue;
+
+		this.prQueue = prQueue;
 
         this.outQueue = new LinkedBlockingQueue<byte[]>(this.controller.getStaticConf().getOutQueueSize());
 
@@ -137,8 +146,9 @@ public class ServerConnection {
         } else {
             sendLock = new ReentrantLock();
         }
-        
-        if (!this.controller.getStaticConf().isTheTTP()) {
+        if(this.controller.getStaticConf().peerreviewEnabled()) {
+			new PRReceiverThread().start();
+		} else if (!this.controller.getStaticConf().isTheTTP()) {
             if (this.controller.getStaticConf().getTTPId() == remoteId) {
                 //Uma thread "diferente" para as msgs recebidas da TTP
                 new TTPReceiverThread(replica).start();
@@ -148,6 +158,12 @@ public class ServerConnection {
         }
         //******* EDUARDO END **************//
     }
+	public ServerConnection(ServerViewController controller, 
+	SSLSocket socket, int remoteId,
+	LinkedBlockingQueue<SystemMessage> inQueue, 
+	ServiceReplica replica) {
+		this(controller, socket, remoteId, inQueue, null, replica);
+	}
 /**
  * Tulio A. Ribeiro.
  * @return SecretKey
@@ -495,6 +511,56 @@ public class ServerConnection {
 				}
 			}
 		}
+    }
+	//******* EDUARDO BEGIN: special thread for peerreview **************//
+	/* 
+     * Thread used to receive packets from the remote server.
+     */
+    protected class PRReceiverThread extends Thread {
+
+        public PRReceiverThread() {
+            super("PRReceiver for " + remoteId);
+        }
+
+        @Override
+        public void run() {
+          
+        	while (doWork) {
+				if (socket != null && socketInStream != null) {
+
+					try {
+						// read data length
+						int dataLength = socketInStream.readInt();
+						byte[] data = new byte[dataLength];
+
+						// read data
+						int read = 0;
+						do {
+							read += socketInStream.read(data, read, dataLength - read);
+						} while (read < dataLength);
+
+						byte hasMAC = socketInStream.readByte();
+
+						logger.trace("Read: {}, HasMAC: {}", read, hasMAC);
+						
+						if (!prQueue.offer(Pair.of(handle, ByteBuffer.wrap(data)))) {
+							logger.warn("Inqueue full (message from " + remoteId + " discarded).");
+						}
+						
+					} catch (IOException ex) {
+						if (doWork) {
+							logger.debug("Closing socket and reconnecting");
+							closeSocket();
+							waitAndConnect();
+						}
+					} catch (Exception ex) {
+						logger.info("Processing message failed. Ignoring!");
+					}
+				} else {
+					waitAndConnect();
+				}
+			}
+        }
     }
         //******* EDUARDO END **************//
     

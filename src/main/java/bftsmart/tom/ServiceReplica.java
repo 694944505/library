@@ -80,6 +80,7 @@ public class ServiceReplica {
     private ReplicaContext replicaCtx = null;
     private Replier replier = null;
     private RequestVerifier verifier = null;
+    boolean isPRcopy = false;
 
     /**
      * Constructor
@@ -89,7 +90,7 @@ public class ServiceReplica {
      * @param recoverer Recoverer
      */
     public ServiceReplica(int id, Executable executor, Recoverable recoverer) {
-        this(id, "", executor, recoverer, null, new DefaultReplier(), null);
+        this(id, "", executor, recoverer, null, new DefaultReplier(), null, false);
     }
 
     /**
@@ -98,10 +99,22 @@ public class ServiceReplica {
      * @param id Replica ID
      * @param executor Executor
      * @param recoverer Recoverer
-     * @param verifier Requests verifier
+     * @param isPRcopy  Is this replica a PR copy?
+     */
+    public ServiceReplica(int id, Executable executor, Recoverable recoverer, boolean isPRcopy) {
+        this(id, "", executor, recoverer, null, new DefaultReplier(), null, isPRcopy);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param id        Replica ID
+     * @param executor  Executor
+     * @param recoverer Recoverer
+     * @param verifier  Requests verifier
      */
     public ServiceReplica(int id, Executable executor, Recoverable recoverer, RequestVerifier verifier) {
-        this(id, "", executor, recoverer, verifier, new DefaultReplier(), null);
+        this(id, "", executor, recoverer, verifier, new DefaultReplier(), null, false);
     }
     
     /**
@@ -109,8 +122,9 @@ public class ServiceReplica {
      * 
      * @see bellow
      */
-    public ServiceReplica(int id, Executable executor, Recoverable recoverer, RequestVerifier verifier, Replier replier) {
-        this(id, "", executor, recoverer, verifier, replier, null);
+    public ServiceReplica(int id, Executable executor, Recoverable recoverer, RequestVerifier verifier,
+            Replier replier) {
+        this(id, "", executor, recoverer, verifier, replier, null, false);
     }
     
     /**
@@ -118,8 +132,9 @@ public class ServiceReplica {
      * 
      * @see bellow
      */
-    public ServiceReplica(int id, Executable executor, Recoverable recoverer, RequestVerifier verifier, Replier replier, KeyLoader loader, Provider provider) {
-        this(id, "", executor, recoverer, verifier, replier, loader);
+    public ServiceReplica(int id, Executable executor, Recoverable recoverer, RequestVerifier verifier, Replier replier,
+            KeyLoader loader, Provider provider) {
+        this(id, "", executor, recoverer, verifier, replier, loader, false);
     }
     /**
      * Constructor
@@ -132,8 +147,10 @@ public class ServiceReplica {
      * @param replier Can be used to override the targets of the replies associated to each request.
      * @param loader Used to load signature keys from disk
      */
-    public ServiceReplica(int id, String configHome, Executable executor, Recoverable recoverer, RequestVerifier verifier, Replier replier, KeyLoader loader) {
+    public ServiceReplica(int id, String configHome, Executable executor, Recoverable recoverer,
+            RequestVerifier verifier, Replier replier, KeyLoader loader, boolean isPRcopy) {
         this.id = id;
+        this.isPRcopy = isPRcopy;
         this.SVController = new ServerViewController(id, configHome, loader);
         this.executor = executor;
         this.recoverer = recoverer;
@@ -168,7 +185,7 @@ public class ServiceReplica {
     // this method initializes the object
     private void init() {
         try {
-            cs = new ServerCommunicationSystem(this.SVController, this);
+            cs = new ServerCommunicationSystem(this.SVController, this, isPRcopy);
         } catch (Exception ex) {
             logger.error("Failed to initialize replica-to-replica communication system", ex);
             throw new RuntimeException("Unable to build a communication system.");
@@ -499,7 +516,7 @@ public class ServiceReplica {
         }
         replicaCtx = new ReplicaContext(cs, SVController);
 
-        tomLayer.start(); // start the layer execution
+        if(!isPRcopy) tomLayer.start(); // start the layer execution
         tomStackCreated = true;
 
     }
@@ -538,5 +555,17 @@ public class ServiceReplica {
      */
     public TOMLayer getTOMLayer() {
         return tomLayer;
+    }
+
+    public Executable getExecutor() {
+        return executor;
+    }
+
+    public Recoverable getRecoverer() {
+        return recoverer;
+    }
+
+    public ServerViewController getSVController() {
+        return SVController;
     }
 }

@@ -16,11 +16,14 @@ limitations under the License.
 package bftsmart.reconfiguration.views;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import bftsmart.peerreview.HandleImpl;
 /**
  *
  * @author eduardo
@@ -33,18 +36,35 @@ public class View implements Serializable {
  	private int f;
  	private int[] processes;
  	private Map<Integer,InetSocketAddress> addresses;
-
- 	public View(int id, int[] processes, int f, InetSocketAddress[] addresses){
- 		this.id = id;
- 		this.processes = processes;
- 		this.addresses = new HashMap<Integer, InetSocketAddress>();
-
- 		for(int i = 0; i < this.processes.length;i++)
- 			this.addresses.put(processes[i],addresses[i]);
- 		Arrays.sort(this.processes);
- 		this.f = f;
- 	}
-
+	 private Map<Integer, Collection<HandleImpl>> witness = new HashMap<Integer, Collection<HandleImpl>>();
+	 public View(int id, int[] processes, int f, InetSocketAddress[] addresses){
+		 this.id = id;
+		 this.processes = processes;
+		 this.addresses = new HashMap<Integer, InetSocketAddress>();
+ 
+		 for(int i = 0; i < this.processes.length;i++)
+			 this.addresses.put(processes[i],addresses[i]);
+		 for(int i = 0; i < this.processes.length;i++) {
+			 ArrayList<HandleImpl> list = new ArrayList<HandleImpl>();
+			 for(int j = 0; j < this.processes.length;j++) {
+				 if (i != j) {
+					 list.add(new HandleImpl(processes[j]));
+				 }
+			 }
+			 witness.put(processes[i], list);
+		 }
+		 Arrays.sort(this.processes);
+		 this.f = f;
+	 }
+ 
+	 public Collection<HandleImpl> getWitnesses(int id) {
+		 return witness.get(id);
+	 }
+ 
+	 public Collection<HandleImpl> getWitnesses() {
+		 return witness.get(this.id);
+	 }
+	 
  	public boolean isMember(int id){
  		for(int i = 0; i < this.processes.length;i++){
  			if(this.processes[i] == id){

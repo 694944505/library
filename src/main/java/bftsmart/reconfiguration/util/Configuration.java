@@ -40,6 +40,7 @@ public class Configuration {
 	protected Map<String, String> configs;
 	protected HostsConfig hosts;
 	protected KeyLoader keyLoader;
+	protected KeyLoader rsakeyLoader;
 
 	public static final String DEFAULT_SECRETKEY = "PBKDF2WithHmacSHA1";
 	public static final String DEFAULT_SECRETKEY_PROVIDER = "SunJCE";
@@ -176,6 +177,7 @@ public class Configuration {
 					keyLoader = new ECDSAKeyLoader(processId, configHome, defaultKeys, signatureAlgorithm);
 					break;
 				}
+				rsakeyLoader = new RSAKeyLoader(processId, configHome, defaultKeys, signatureAlgorithm);
 			}
 
 			TOMUtil.init(
@@ -315,6 +317,32 @@ public class Configuration {
 		}
 	}
 
+	public PublicKey getRSAPublicKey() {
+		try {
+			return rsakeyLoader.loadPublicKey();
+		} catch (Exception e) {
+			logger.error("Could not load RSA public key", e);
+			return null;
+		}
+
+	}
+	public PublicKey getRSAPublicKey(int id) {
+		try {
+			return rsakeyLoader.loadPublicKey(id);
+		} catch (Exception e) {
+			logger.error("Could not load RSA public key", e);
+			return null;
+		}
+
+	}
+	public PrivateKey getRSAPrivateKey() {
+		try {
+			return rsakeyLoader.loadPrivateKey();
+		} catch (Exception e) {
+			logger.error("Could not load RSA private key", e);
+			return null;
+		}
+	}
 	private void loadConfig() {
 		configs = new HashMap<>();
 		try {

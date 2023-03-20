@@ -139,11 +139,12 @@ distributions {
 
 dependencies {
     implementation fileTree('lib'){include '*.jar'}
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15to18
     // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
+    //implementation 'org.bouncycastle:bcpkix-jdk15to18:1.72'
 
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+    implementation 'org.bouncycastle:bcprov-jdk15:1.44'
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation 'commons-codec:commons-codec:1.15'

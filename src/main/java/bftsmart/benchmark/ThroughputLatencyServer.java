@@ -3,6 +3,7 @@ package bftsmart.benchmark;
 import bftsmart.tests.recovery.Operation;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
+import bftsmart.peerreview.PeerReviewService;
 import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public class ThroughputLatencyServer extends DefaultSingleRecoverable {
 	private final Set<Integer> senders;
 	private double maxThroughput;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
 			System.out.println("USAGE: bftsmart.benchmark.ThroughputLatencyServer <process id>");
 			System.exit(-1);
@@ -31,7 +32,7 @@ public class ThroughputLatencyServer extends DefaultSingleRecoverable {
 		new ThroughputLatencyServer(processId);
 	}
 
-	public ThroughputLatencyServer(int processId) {
+	public ThroughputLatencyServer(int processId) throws Exception{
 		senders = new HashSet<>(1000);
 		new ServiceReplica(processId, this, this);
 	}

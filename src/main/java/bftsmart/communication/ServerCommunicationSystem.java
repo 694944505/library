@@ -33,6 +33,96 @@ import bftsmart.tom.core.messages.TOMMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bftsmart.peerreview.Material;
+
+import bftsmart.peerreview.HandleImpl;
+import bftsmart.peerreview.IdImpl;
+import bftsmart.peerreview.PeerReviewTransport;
+import bftsmart.peerreview.Player;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.SignatureException;
+import java.security.cert.X509Certificate;
+import java.security.spec.RSAKeyGenParameterSpec;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.mpisws.p2p.pki.x509.CATool;
+import org.mpisws.p2p.pki.x509.CAToolImpl;
+import org.mpisws.p2p.pki.x509.X509Serializer;
+import org.mpisws.p2p.pki.x509.X509SerializerImpl;
+import org.mpisws.p2p.transport.ErrorHandler;
+import org.mpisws.p2p.transport.MessageCallback;
+import org.mpisws.p2p.transport.MessageRequestHandle;
+import org.mpisws.p2p.transport.P2PSocket;
+import org.mpisws.p2p.transport.SocketCallback;
+import org.mpisws.p2p.transport.SocketRequestHandle;
+import org.mpisws.p2p.transport.TransportLayer;
+import org.mpisws.p2p.transport.TransportLayerCallback;
+import org.mpisws.p2p.transport.peerreview.IdentifierExtractor;
+import org.mpisws.p2p.transport.peerreview.PeerReview;
+import org.mpisws.p2p.transport.peerreview.PeerReviewCallback;
+import org.mpisws.p2p.transport.peerreview.PeerReviewImpl;
+import org.mpisws.p2p.transport.peerreview.WitnessListener;
+import org.mpisws.p2p.transport.peerreview.commitment.Authenticator;
+import org.mpisws.p2p.transport.peerreview.commitment.AuthenticatorSerializer;
+import org.mpisws.p2p.transport.peerreview.commitment.AuthenticatorSerializerImpl;
+import org.mpisws.p2p.transport.peerreview.commitment.AuthenticatorStore;
+import org.mpisws.p2p.transport.peerreview.commitment.CommitmentProtocol;
+import org.mpisws.p2p.transport.peerreview.commitment.CommitmentProtocolImpl;
+import org.mpisws.p2p.transport.peerreview.evidence.EvidenceSerializerImpl;
+import org.mpisws.p2p.transport.peerreview.history.HashProvider;
+import org.mpisws.p2p.transport.peerreview.history.SecureHistory;
+import org.mpisws.p2p.transport.peerreview.history.SecureHistoryFactory;
+import org.mpisws.p2p.transport.peerreview.history.SecureHistoryFactoryImpl;
+import org.mpisws.p2p.transport.peerreview.history.hasher.SHA1HashProvider;
+import org.mpisws.p2p.transport.peerreview.history.stub.NullHashProvider;
+import org.mpisws.p2p.transport.peerreview.identity.IdentityTransport;
+import org.mpisws.p2p.transport.peerreview.identity.IdentityTransportCallback;
+import org.mpisws.p2p.transport.peerreview.identity.IdentityTransportLayerImpl;
+import org.mpisws.p2p.transport.peerreview.identity.UnknownCertificateException;
+import org.mpisws.p2p.transport.peerreview.infostore.Evidence;
+import org.mpisws.p2p.transport.peerreview.infostore.IdStrTranslator;
+import org.mpisws.p2p.transport.peerreview.infostore.PeerInfoStore;
+import org.mpisws.p2p.transport.peerreview.infostore.StatusChangeListener;
+import org.mpisws.p2p.transport.peerreview.message.PeerReviewMessage;
+import org.mpisws.p2p.transport.peerreview.replay.Verifier;
+import org.mpisws.p2p.transport.peerreview.replay.record.RecordLayer;
+import org.mpisws.p2p.transport.table.UnknownValueException;
+import org.mpisws.p2p.transport.util.MessageRequestHandleImpl;
+import org.mpisws.p2p.transport.util.Serializer;
+
+import rice.Continuation;
+import rice.environment.Environment;
+//import rice.environment.logging.Logger;
+import rice.p2p.commonapi.Cancellable;
+import rice.p2p.commonapi.rawserialization.InputBuffer;
+import rice.p2p.commonapi.rawserialization.OutputBuffer;
+import rice.p2p.commonapi.rawserialization.RawSerializable;
+import rice.p2p.util.MathUtils;
+import rice.p2p.util.rawserialization.SimpleOutputBuffer;
+import rice.selector.TimerTask;
 /**
  *
  * @author alysson
@@ -44,27 +134,46 @@ public class ServerCommunicationSystem extends Thread {
     private boolean doWork = true;
     public final long MESSAGE_WAIT_TIME = 100;
     private LinkedBlockingQueue<SystemMessage> inQueue = null;//new LinkedBlockingQueue<SystemMessage>(IN_QUEUE_SIZE);
+    private LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>> prQueue = null;
     protected MessageHandler messageHandler;
     
     private ServersCommunicationLayer serversConn;
+    private PeerReview<HandleImpl, IdImpl> pr;
     private CommunicationSystemServerSide clientsConn;
     private ServerViewController controller;
+    private boolean isPRcopy;
 
     /**
      * Creates a new instance of ServerCommunicationSystem
      */
-    public ServerCommunicationSystem(ServerViewController controller, ServiceReplica replica) throws Exception {
+    public ServerCommunicationSystem(ServerViewController controller, ServiceReplica replica, boolean isPRcopy)
+            throws Exception {
         super("Server Comm. System");
 
         this.controller = controller;
-        
+        this.isPRcopy = isPRcopy;
+
         messageHandler = new MessageHandler();
 
         inQueue = new LinkedBlockingQueue<SystemMessage>(controller.getStaticConf().getInQueueSize());
+        prQueue = new LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>>(controller.getStaticConf().getInQueueSize());
+        if(controller.getStaticConf().peerreviewEnabled()) {
+            // Instantiate a new PeerReviewTransport object 
+            // which holds a controller, inQueue, and replica
+            Environment env;
+            env = RecordLayer.generateEnvironment();
+            env.getParameters().setInt("loglevel", rice.environment.logging.Logger.SEVERE);
+            Material.buildCryptoMaterial(env, controller);
+            serversConn = new PeerReviewTransport(controller, inQueue, prQueue, replica, env, isPRcopy);
+            pr = ((PeerReviewTransport)serversConn).getPR();
+            
 
-        serversConn = new ServersCommunicationLayer(controller, inQueue, replica);
+        } else {
+            serversConn = new ServersCommunicationLayer(controller, inQueue, replica);
+        }
 
         //******* EDUARDO BEGIN **************//
+        if (!isPRcopy)
             clientsConn = CommunicationSystemServerSideFactory.getCommunicationSystemServerSide(controller);
         //******* EDUARDO END **************//
     }
@@ -103,28 +212,58 @@ public class ServerCommunicationSystem extends Thread {
      */
     @Override
     public void run() {
-        
+        if (isPRcopy) return ;
         long count = 0;
-        while (doWork) {
-            try {
-                if (count % 1000 == 0 && count > 0) {
-                    logger.debug("After " + count + " messages, inQueue size=" + inQueue.size());
+        if(controller.getStaticConf().peerreviewEnabled()) {
+            while (doWork) {
+                try {
+                    if (count % 1000 == 0 && count > 0) {
+                        logger.debug("After " + count + " messages, prQueue size=" + prQueue.size());
+                    }
+    
+                    Pair<HandleImpl, ByteBuffer> buf = prQueue.poll(MESSAGE_WAIT_TIME, TimeUnit.MILLISECONDS);
+    
+                    if (buf != null) {
+                        logger.debug("<-- receiving, msg:");
+                        try {
+                            pr.messageReceived(buf.getLeft(), buf.getRight(), null);
+                        } catch (IOException e) {
+                            logger.error("Error processing message",e);
+                        }
+                        count++;
+                    } else {                
+                        messageHandler.verifyPending();               
+                    }
+    
+                } catch (InterruptedException e) {
+                    
+                    logger.error("Error processing message",e);
                 }
-
-                SystemMessage sm = inQueue.poll(MESSAGE_WAIT_TIME, TimeUnit.MILLISECONDS);
-
-                if (sm != null) {
-                    logger.debug("<-- receiving, msg:" + sm);
-                    messageHandler.processData(sm);
-                    count++;
-                } else {                
-                    messageHandler.verifyPending();               
+            }
+        } else {
+            while (doWork) {
+                try {
+                    if (count % 1000 == 0 && count > 0) {
+                        logger.debug("After " + count + " messages, inQueue size=" + inQueue.size());
+                    }
+    
+                    SystemMessage sm = inQueue.poll(MESSAGE_WAIT_TIME, TimeUnit.MILLISECONDS);
+    
+                    if (sm != null) {
+                        logger.debug("<-- receiving, msg:" + sm);
+                        messageHandler.processData(sm);
+                        count++;
+                    } else {                
+                        messageHandler.verifyPending();               
+                    }
+    
+                } catch (InterruptedException e) {
+                    
+                    logger.error("Error processing message",e);
                 }
-            } catch (InterruptedException e) {
-                
-                logger.error("Error processing message",e);
             }
         }
+        
         logger.info("ServerCommunicationSystem stopped.");
 
     }
@@ -153,6 +292,11 @@ public class ServerCommunicationSystem extends Thread {
         return serversConn;
     }
     
+    public PeerReviewTransport getPRServersConn() {
+        if(serversConn instanceof PeerReviewTransport)
+            return (PeerReviewTransport)serversConn;
+        return null;
+    }
     public CommunicationSystemServerSide getClientsConn() {
         return clientsConn;
     }
@@ -174,6 +318,7 @@ public class ServerCommunicationSystem extends Thread {
     public SecretKey getSecretKey(int id) {
 		return serversConn.getSecretKey(id);
 	}
+
     public MessageHandler getMessageHandler() {
         return messageHandler;
     }

@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -35,6 +36,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.communication.SystemMessage;
+import bftsmart.peerreview.HandleImpl;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.util.TOMUtil;
@@ -55,6 +57,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,19 +84,20 @@ import org.slf4j.LoggerFactory;
 
 public class ServersCommunicationLayer extends Thread {
     
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    public Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    private ServerViewController controller;
-    private LinkedBlockingQueue<SystemMessage> inQueue;
-    private HashMap<Integer, ServerConnection> connections = new HashMap<>();
-    private ServerSocket serverSocket;
-    private int me;
-    private boolean doWork = true;
-    private Lock connectionsLock = new ReentrantLock();
-    private ReentrantLock waitViewLock = new ReentrantLock();
-    private List<PendingConnection> pendingConn = new LinkedList<PendingConnection>();
-    private ServiceReplica replica;
+    public ServerViewController controller;
+    public LinkedBlockingQueue<SystemMessage> inQueue;
+    public LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>> prQueue;
+    public HashMap<Integer, ServerConnection> connections = new HashMap<>();
+    public ServerSocket serverSocket;
+    public int me;
+    public boolean doWork = true;
+    public Lock connectionsLock = new ReentrantLock();
+    public ReentrantLock waitViewLock = new ReentrantLock();
+    public List<PendingConnection> pendingConn = new LinkedList<PendingConnection>();
+    public ServiceReplica replica;
     
     
     /**
@@ -101,24 +105,29 @@ public class ServersCommunicationLayer extends Thread {
 	 * SSL / TLS.
 	 */
 
-	private KeyManagerFactory kmf;
-	private KeyStore ks;
-	private TrustManagerFactory trustMgrFactory;
-	private SSLContext context;
-	private SSLServerSocketFactory serverSocketFactory;
-	private static final String SECRET = "MySeCreT_2hMOygBwY";
-	private SecretKey selfPwd;
-	private SSLServerSocket serverSocketSSLTLS;
-	private String ssltlsProtocolVersion;
+	public KeyManagerFactory kmf;
+	public KeyStore ks;
+	public TrustManagerFactory trustMgrFactory;
+	public SSLContext context;
+	public SSLServerSocketFactory serverSocketFactory;
+	public static final String SECRET = "MySeCreT_2hMOygBwY";
+	public SecretKey selfPwd;
+	public SSLServerSocket serverSocketSSLTLS;
+	public String ssltlsProtocolVersion;
 
     public ServersCommunicationLayer(ServerViewController controller,
             LinkedBlockingQueue<SystemMessage> inQueue, 
-            ServiceReplica replica) throws Exception {
+            LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>> prQueue,
+            ServiceReplica replica,
+            boolean isPRcopy) throws Exception {
 
         this.controller = controller;
         this.inQueue = inQueue;
+        this.prQueue = prQueue;
         this.me = controller.getStaticConf().getProcessId();
         this.replica = replica;
+        if (isPRcopy)
+            return;
         this.ssltlsProtocolVersion = controller.getStaticConf().getSSLTLSProtocolVersion();
 
         String myAddress;
@@ -167,12 +176,14 @@ public class ServersCommunicationLayer extends Thread {
 		trustMgrFactory = TrustManagerFactory.getInstance(algorithm);
 		trustMgrFactory.init(ks);
 
-		context = SSLContext.getInstance(this.ssltlsProtocolVersion);
-		context.init(kmf.getKeyManagers(), trustMgrFactory.getTrustManagers(), new SecureRandom());
+        context = SSLContext.getInstance(this.ssltlsProtocolVersion);
+        context.init(kmf.getKeyManagers(), trustMgrFactory.getTrustManagers(), new SecureRandom());
 
-		serverSocketFactory = context.getServerSocketFactory();
-		this.serverSocketSSLTLS = (SSLServerSocket) serverSocketFactory.createServerSocket(myPort, 100,
-				InetAddress.getByName(myAddress));
+        serverSocketFactory = context.getServerSocketFactory();
+        
+        if (!isPRcopy) {
+            this.serverSocketSSLTLS = (SSLServerSocket) serverSocketFactory.createServerSocket(myPort, 100,
+                InetAddress.getByName(myAddress));
 
 		serverSocketSSLTLS.setEnabledCipherSuites(this.controller.getStaticConf().getEnabledCiphers());
 
@@ -204,6 +215,12 @@ public class ServersCommunicationLayer extends Thread {
         }
         
         start();
+        }
+    }
+    public ServersCommunicationLayer(ServerViewController controller,
+            LinkedBlockingQueue<SystemMessage> inQueue, 
+            ServiceReplica replica) throws Exception {
+            this(controller, inQueue, null, replica, false);
     }
 
     public SecretKey getSecretKey(int id) {
@@ -247,12 +264,12 @@ public class ServersCommunicationLayer extends Thread {
         connectionsLock.unlock();
     }
 
-    private ServerConnection getConnection(int remoteId) {
+    public ServerConnection getConnection(int remoteId) {
         connectionsLock.lock();
         ServerConnection ret = this.connections.get(remoteId);
         if (ret == null) {
             ret = new ServerConnection(controller, null, 
-            		remoteId, this.inQueue, this.replica);
+            		remoteId, this.inQueue, this.prQueue, this.replica);
             this.connections.put(remoteId, ret);
         }
         connectionsLock.unlock();
@@ -261,7 +278,7 @@ public class ServersCommunicationLayer extends Thread {
     //******* EDUARDO END **************//
 
 
-    public final void send(int[] targets, SystemMessage sm, boolean useMAC) {
+    public void send(int[] targets, SystemMessage sm, boolean useMAC) {
         ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
         try {
             new ObjectOutputStream(bOut).writeObject(sm);
@@ -285,7 +302,7 @@ public class ServersCommunicationLayer extends Thread {
 					inQueue.put(sm);
 					logger.debug("Queueing (delivering) my own message, me:{}", target);
 				} else {
-					logger.debug("Sending message from:{} -> to:{}.", me,  target);
+					logger.debug("Sending message from:{} -> to:{}", me,  target);
 					getConnection(target).send(data);
 				}
 			} catch (InterruptedException ex) {
@@ -371,14 +388,14 @@ public class ServersCommunicationLayer extends Thread {
     }
 
     //******* EDUARDO BEGIN **************//
-    private void establishConnection(SSLSocket newSocket, int remoteId) throws IOException {
+    public void establishConnection(SSLSocket newSocket, int remoteId) throws IOException {
         if ((this.controller.getStaticConf().getTTPId() == remoteId) || this.controller.isCurrentViewMember(remoteId)) {
             connectionsLock.lock();
             if (this.connections.get(remoteId) == null) { //This must never happen!!!
                 //first time that this connection is being established
                 //System.out.println("THIS DOES NOT HAPPEN....."+remoteId);
                 this.connections.put(remoteId,
-                			new ServerConnection(controller, newSocket, remoteId, inQueue, replica));
+                			new ServerConnection(controller, newSocket, remoteId, inQueue, prQueue, replica));
             } else {
                 //reconnection	
             	logger.debug("ReConnecting with replica: {}", remoteId);
