@@ -138,6 +138,9 @@ public class ServerCommunicationSystem extends Thread {
      * @param sm the message to be sent
      */
     public void send(int[] targets, SystemMessage sm) {
+        if (targets == null || targets.length == 0) { 
+            return;
+        }
         if (sm instanceof TOMMessage) {
             clientsConn.send(targets, (TOMMessage) sm, false);
         } else {
@@ -171,4 +174,7 @@ public class ServerCommunicationSystem extends Thread {
     public SecretKey getSecretKey(int id) {
 		return serversConn.getSecretKey(id);
 	}
+    public MessageHandler getMessageHandler() {
+        return messageHandler;
+    }
 }

@@ -18,6 +18,9 @@ package bftsmart.consensus.messages;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
+
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import bftsmart.communication.SystemMessage;
 
@@ -32,6 +35,7 @@ public class ConsensusMessage extends SystemMessage {
     private int epoch; // Epoch to which this message belongs to
     private int paxosType; // Message type
     private byte[] value = null; // Value used when message type is PROPOSE
+    private byte[] parentValue = null;
     private Object proof; // Proof used when message type is COLLECT
                               // Can be either a MAC vector or a signature
     private Object LCset; // Leader change set used when message type is CONFLICT  
@@ -68,10 +72,11 @@ public class ConsensusMessage extends SystemMessage {
      * @param id Consensus's ID
      * @param epoch Epoch timestamp
      * @param from This should be this process ID
-     * @param value This should be null if its a COLLECT message, or the proposed value if it is a PROPOSE message
+     * @param value 
+     * @param parentValue  parent value if it is a PROPOSE message
      * @param reg consensus view number
      */
-    public ConsensusMessage(int paxosType, int id,int epoch,int from, byte[] value,int reg){
+    public ConsensusMessage(int paxosType, int id,int epoch,int from, byte[] value, byte[] parentValue, int reg){
 
         super(from);
 
@@ -79,6 +84,7 @@ public class ConsensusMessage extends SystemMessage {
         this.number = id;
         this.epoch = epoch;
         this.value = value;
+        this.parentValue = parentValue;
         //this.macVector = proof;
         this.reg=reg;
     }
@@ -111,9 +117,21 @@ public class ConsensusMessage extends SystemMessage {
             out.writeInt(-1);
 
         } else {
+            
 
             out.writeInt(value.length);
             out.write(value);
+          
+
+        }
+        if(parentValue == null) {
+
+            out.writeInt(-1);
+
+        } else {
+
+            out.writeInt(parentValue.length);
+            out.write(parentValue);
 
         }
 
@@ -161,6 +179,19 @@ public class ConsensusMessage extends SystemMessage {
                 toRead -= in.read(value, value.length-toRead, toRead);
 
             } while(toRead > 0);
+            
+
+        }
+        toRead = in.readInt();
+        if(toRead != -1) {
+
+            parentValue = new byte[toRead];
+
+            do{
+
+                toRead -= in.read(parentValue, parentValue.length-toRead, toRead);
+
+            } while(toRead > 0);
 
         }
 
@@ -194,6 +225,11 @@ public class ConsensusMessage extends SystemMessage {
     public byte[] getValue() {
 
         return value;
+
+    }
+    public byte[] getParentValue() {
+
+        return parentValue;
 
     }
 
@@ -264,7 +300,7 @@ public class ConsensusMessage extends SystemMessage {
     @Override
     public String toString() {
         return "type="+getPaxosVerboseType()+", number="+getNumber()+", epoch="+
-                getEpoch()+", from="+getSender();
+                getEpoch()+", from="+getSender() +", value=" + Arrays.toString(value);
     }
 
     /*
@@ -274,6 +310,29 @@ public class ConsensusMessage extends SystemMessage {
     public int getReg() {
         return reg;
     }
+    @Override
+    public boolean equals(Object o) {
+         if (o == this) {
+            return true;
+         }
+         if (!(o instanceof ConsensusMessage)) {
+            return false;
+         }
+
+         ConsensusMessage msg = (ConsensusMessage) o;
+
+         return msg.sender == sender && Arrays.equals(msg.value, value) && Arrays.equals(msg.parentValue, parentValue);
+   }
+
+   @Override
+   public int hashCode() {
+        return new HashCodeBuilder(17, 31). // two randomly chosen prime numbers
+            // if deriving: appendSuper(super.hashCode()).
+            append(sender).
+            append(value).
+            append(parentValue).
+            toHashCode();
+   }
 
 }
 

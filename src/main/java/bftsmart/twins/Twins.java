@@ -228,9 +228,6 @@ public final class Twins extends DefaultRecoverable{
 
         return reply;
     }
-    //<processId> <measurement interval> <reply size> <state size> <context?> <nosig | default | ecdsa> [rwd | rw]
-    // ./smartrun.cmd bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 50000 0 0 false nosig
-    // ./smartrun.cmd bftsmart.demo.microbenchmarks.ThroughputLatencyClient  0 1 2 0 0 false false nosig
 
     public static void main(String[] args){
         /*if(args.length < 4) {

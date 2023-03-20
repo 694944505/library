@@ -64,4 +64,8 @@ public abstract class SystemMessage implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         sender = in.readInt();
     }
+    @Override
+    public String toString(){
+        return this.getClass().toString()+sender;
+    }
 }

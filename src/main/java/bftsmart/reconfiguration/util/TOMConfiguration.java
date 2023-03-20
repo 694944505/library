@@ -74,6 +74,8 @@ public class TOMConfiguration extends Configuration {
 
     /* accountability */
     private boolean accountabilityEnabled;
+    private double faultDetectServerNum;
+    private boolean peerreviewEnabled;
     /** Creates a new instance of TOMConfiguration */
     public TOMConfiguration(int processId, KeyLoader loader) {
         super(processId, loader);
@@ -433,11 +435,23 @@ public class TOMConfiguration extends Configuration {
                 clientInvokeOrderedTimeout = Integer.parseInt(s);
             }
 
-            s = (String) configs.remove("system.accountabilityEnabled");
+            s = (String) configs.remove("system.faultDetectServerNum");
             if (s == null) {
-                accountabilityEnabled = true;
+                accountabilityEnabled = false;
+                faultDetectServerNum = 0;
             } else {
-                accountabilityEnabled = Boolean.parseBoolean(s);
+                faultDetectServerNum = Double.parseDouble(s);
+                if (faultDetectServerNum > 1e-6) {
+                    accountabilityEnabled = true;
+                } else {
+                    accountabilityEnabled = false;
+                }
+            }
+            s = (String) configs.remove("system.peerreviewEnabled");
+            if (s == null) {
+                peerreviewEnabled = false;
+            } else {
+                peerreviewEnabled = Boolean.parseBoolean(s);
             }
 
         } catch (Exception e) {
@@ -651,6 +665,12 @@ public class TOMConfiguration extends Configuration {
 
     public boolean accountabilityEnabled() {
         return accountabilityEnabled;
+    }
+    public boolean peerreviewEnabled() {
+        return peerreviewEnabled;
+    }
+    public int getFaultDetectServerBound(int cid) {
+        return (int) (Math.floor((cid * faultDetectServerNum)));
     }
 
 }

@@ -23,6 +23,7 @@ import bftsmart.reconfiguration.views.View;
 import bftsmart.reconfiguration.views.ViewStorage;
 import bftsmart.tom.util.KeyLoader;
 import java.security.Provider;
+import java.util.Vector;
 
 /**
  *
@@ -104,5 +105,16 @@ public class ViewController {
 
     public int[] getCurrentViewProcesses() {
         return getCurrentView().getProcesses();
+    }
+    public int[] getCurrentViewCheckers(int from, int to) {
+        
+        Vector<Integer> checkers = new Vector<>();
+        for (int i = from; i < to; i++) {
+            int id = getCurrentView().getProcesses()[i % getCurrentView().getN()];
+            if (id != staticConf.getProcessId()) {
+                checkers.add(id);
+            }
+        }
+        return checkers.stream().mapToInt(Integer::intValue).toArray();
     }
 }

@@ -106,7 +106,7 @@ public final class Acceptor {
 		 * this.proofExecutor = Executors.newWorkStealingPool(nWorkers);
 		 */
 		this.proofExecutor = Executors.newSingleThreadExecutor();
-		this.accountability = new Accountability(factory, logger);
+		this.accountability = new Accountability(factory, communication, controller, proofExecutor, logger);
 	}
 
 	public MessageFactory getFactory() {
@@ -194,7 +194,7 @@ public final class Acceptor {
 			}
 				break;
 		}
-		System.out.println("received " + type + " from " + msg.getSender() + " for consensus " + msg.getNumber());
+		//System.out.println("received " + type + " from " + msg.getSender() + " for consensus " + msg.getNumber());
 		consensus.lock.unlock();
 	}
 
@@ -459,18 +459,9 @@ public final class Acceptor {
 			decide(epoch);
 			if (controller.getStaticConf().accountabilityEnabled()) {
 				int reg = tomLayer.getSynchronizer().getLCManager().getNextReg();
-				communication.send(this.controller.getCurrentViewOtherAcceptors(),
-						factory.createCheck(cid, epoch.getTimestamp(), epoch.propValueHash, reg));
+				accountability.addDecision(
+						new CertifiedDecision(me, cid, epoch.propValueHash, epoch.getProof(), reg), epoch);
 				
-				Pair<ConsensusMessage, Vector<Integer>> pair = accountability.addDecision(
-						new CertifiedDecision(me, cid, epoch.propValueHash, epoch.getProof(), reg));
-				if (pair != null) {
-					int [] targets = new int[pair.getValue().size()];
-					for (int i = 0; i < targets.length; i++) {
-						targets[i] = pair.getValue().get(i);
-					}
-					communication.send(targets, pair.getKey());
-				}
 			}
 		}
 	}
@@ -498,14 +489,7 @@ public final class Acceptor {
 	 */
 	private void checkReceived(Epoch epoch, ConsensusMessage msg) {
 
-		Pair<ConsensusMessage, Vector<Integer>> pair = accountability.addCheck(msg);
-		if (pair != null) {
-			int [] targets = new int[pair.getValue().size()];
-			for (int i = 0; i < targets.length; i++) {
-				targets[i] = pair.getValue().get(i);
-			}
-			communication.send(targets, pair.getKey());
-		}
+		accountability.addCheck(msg);
 	}
 
 	/*
@@ -514,7 +498,7 @@ public final class Acceptor {
 	 * @param epoch Epoch of the receives message
 	 * 
 	 * @param a Replica that sent the message
-	 * ./smartrun.cmd bftsmart.demo.microbenchmarks.ThroughputLatencyServer 3 50000 0 0 false nosig
+	 * 
 	 * @param value Value sent in the message
 	 */
 	private void conflictReceived(Epoch epoch, ConsensusMessage msg){
@@ -536,7 +520,7 @@ public final class Acceptor {
 							guilty.add(cm.getSender());
 						}
 					}
-					System.out.println("Guilty: " + guilty);
+					logger.error("Guilty nodes: " + guilty + "at cid: " + cid);
 				}else{
 					CertifiedDecision firstDec;
 					HashSet<SignedObject> LCSet;

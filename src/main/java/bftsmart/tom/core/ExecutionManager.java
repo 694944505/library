@@ -470,7 +470,7 @@ public final class ExecutionManager {
                 if (consensus.isDecided()) {
                     logger.debug("Consensus "
                             + consensus.getId() + " decided.");
-                   // break;
+                   if(!controller.getStaticConf().accountabilityEnabled()) break;
                 }
             }
             logger.debug("[Consensus " + consensus.getId()

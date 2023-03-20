@@ -45,6 +45,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import bftsmart.communication.SystemMessage;
+import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.reconfiguration.VMMessage;
 import bftsmart.tom.ServiceReplica;
@@ -414,7 +415,7 @@ public class ServerConnection {
 						//The verification it is done for the SSL/TLS protocol.
 						sm.authenticated = true;
 
-						if (sm.getSender() == remoteId) {
+						if (sm.getSender() == remoteId || sm instanceof ConsensusMessage) {
 							if (!inQueue.offer(sm)) {
 								logger.warn("Inqueue full (message from " + remoteId + " discarded).");
 							}/* else {

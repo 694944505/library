@@ -2,41 +2,61 @@ package bftsmart.accountability;
 
 import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.messages.MessageFactory;
+import bftsmart.reconfiguration.ServerViewController;
+import bftsmart.communication.ServerCommunicationSystem;
 import bftsmart.consensus.Decision;
+import bftsmart.consensus.Epoch;
+import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.leaderchange.CertifiedDecision;
 import bftsmart.tom.leaderchange.LCManager;
+import bftsmart.tom.util.TOMUtil;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SignedObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 
-import org.bouncycastle.cms.DefaultCMSSignatureEncryptionAlgorithmFinder;
+
 
 public class Accountability {
     private Logger logger;
     private boolean test = false;
     // <cid, decision>
-    private final HashMap<Integer, CertifiedDecision> decisionMap = new HashMap<>();
+    private final HashMap<Integer, CertifiedDecision> myDecisionMap = new HashMap<>();
     // <cid, proof>
-    private final HashMap<Integer, List<ConsensusMessage>> checkMap = new HashMap<>();
-    // <view number, view change messages>
+    private final HashMap<Integer, HashSet<ConsensusMessage>> otherDecisionMap = new HashMap<>(); 
     private final HashMap<Integer, HashSet<SignedObject>> LCMap =new HashMap<>();
     private final Lock checkLock = new ReentrantLock();
 
     private final MessageFactory factory;
-    public Accountability(MessageFactory factory, Logger logger) {
+    private final ServerCommunicationSystem communication;
+    private int detectFrom = 0;
+    private int detecTo = 0;
+    private ServerViewController controller;
+    private ExecutorService proofExecutor;
+    private PrivateKey privKey;
+    public Accountability(MessageFactory factory, ServerCommunicationSystem communication, ServerViewController controller, ExecutorService proofExecutor, Logger logger) {
         this.factory = factory;
         this.logger = logger;
+        this.communication = communication;
+        this.controller = controller;
+        this.proofExecutor = proofExecutor;
+        this.privKey = controller.getStaticConf().getPrivateKey();
     }
 
     /*
@@ -46,64 +66,160 @@ public class Accountability {
      * @return conflict set message if there is a conflict, null otherwise
      */
      
-    public Pair<ConsensusMessage, Vector<Integer>> addDecision(CertifiedDecision decision) {
-        Vector<Integer> targets = new Vector<>();
+    public void addDecision(CertifiedDecision decision, Epoch epoch) {
+        Vector<ConsensusMessage> confilDecisions = new Vector<>();
         checkLock.lock();
         try {
             //System.out.println("addDecision: " + decision.getCID() + " " + checkMap.keySet());
-            decisionMap.put(decision.getCID(), (CertifiedDecision) decision/* .clone() */);
-            List<ConsensusMessage> lst = checkMap.get(decision.getCID());
-            if (lst != null) {
-                for (ConsensusMessage msg : lst) {
-                    // TODO remove test
-                    if (test||!Arrays.equals(msg.getValue(), decision.getDecision())) {
-                        targets.add(msg.getSender());
+            myDecisionMap.put(decision.getCID(), (CertifiedDecision) decision/* .clone() */);
+            HashSet<ConsensusMessage> otherDecision = otherDecisionMap.get(decision.getCID());
+            if (otherDecision != null) {
+                for(ConsensusMessage msg : otherDecision){
+                    if(test || !Arrays.equals(msg.getValue(), decision.getDecision())){
+                        confilDecisions.add(msg);
                     }
                 }
-                checkMap.remove(decision.getCID());
             }
         } finally {
             checkLock.unlock();
         }
-        ConsensusMessage conflictMessage = factory.createConflict(decision.getCID(), 0,
-							decision.getDecision(), decision.getReg());
-		conflictMessage.setProof(decision.getConsMessages());
-        conflictMessage.setLCset(LCMap.get(decision.getReg()));
-        if(targets.size()>0){
-            return Pair.of(conflictMessage, targets);
+        for (ConsensusMessage msg : confilDecisions) {
+            checkConflict(decision, msg);
         }
-        else{
-            return null;
+        
+        // send check message
+        byte [] praentValue = getParentValue(decision);
+        detectFrom = detecTo;
+        detecTo = controller.getStaticConf().getFaultDetectServerBound(decision.getCID());
+        proofExecutor.submit(() -> {
+            ConsensusMessage check = factory.createCheck(decision.getCID(), epoch.getTimestamp(), epoch.propValueHash, praentValue, decision.getReg());
+            // Create a cryptographic proof for this CHECK message
+            logger.debug(
+                    "Creating cryptographic proof for the correct CHECK message from consensus " + decision.getCID());
+            insertProof(check);
+
+            communication.send(this.controller.getCurrentViewCheckers(detectFrom, detecTo), check);
+
+        });
+        
+    }
+    
+
+    private void checkConflict(CertifiedDecision decision, ConsensusMessage msg){
+        if (test || Arrays.equals(msg.getParentValue(), getParentValue(decision))) {
+            ConsensusMessage conflictMessage = factory.createConflict(decision.getCID(), 0, decision.getDecision(),
+                    decision.getReg());
+            conflictMessage.setProof(decision.getConsMessages());
+            conflictMessage.setLCset(LCMap.get(decision.getReg()));
+            communication.send(new int[]{msg.getSender()}, conflictMessage);
+        } else {
+            // send check message
+            CertifiedDecision lastDecision = myDecisionMap.get(decision.getCID()-1);
+            byte [] praentValue = getParentValue(lastDecision);
+            proofExecutor.submit(() -> {
+                ConsensusMessage check = factory.createCheck(lastDecision.getCID(), 0, lastDecision.getDecision(), praentValue, lastDecision.getReg());
+                // Create a cryptographic proof for this CHECK message
+                logger.debug(
+                        "Creating cryptographic proof for the correct CHECK message from consensus " + decision.getCID());
+                insertProof(check);
+    
+                communication.send(new int[]{msg.getSender()}, check);
+    
+            });
         }
     }
+    private byte[] getParentValue(CertifiedDecision decision) {
+        if (decision.getCID() == 0) {
+            return new byte[0];
+        }
+        CertifiedDecision lastDecision = myDecisionMap.get(decision.getCID()-1);
+        if (lastDecision == null) {
+            logger.error("last decision is null");
+            return new byte[0];
+        }
+        return lastDecision.getDecision();
+    }
+    private void insertProof(ConsensusMessage cm) {
+		ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
+		try {
+			ObjectOutputStream obj = new ObjectOutputStream(bOut);
+			obj.writeInt(cm.getNumber());
+            obj.write(cm.getValue());
+            obj.write(cm.getParentValue());
+			obj.flush();
+			bOut.flush();
+		} catch (IOException ex) {
+			logger.error("Failed to serialize consensus message", ex);
+		}
 
+		byte[] data = bOut.toByteArray();
+
+		// Always sign a consensus proof.
+		byte[] signature = TOMUtil.signMessage(privKey, data);
+		cm.setProof(signature);
+	}
+    private boolean hasValidProof(ConsensusMessage msg) {
+        if (!(msg.getProof() instanceof byte[])) return false;
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
+        try {
+            ObjectOutputStream obj = new ObjectOutputStream(bOut);
+			obj.writeInt(msg.getNumber());
+            obj.write(msg.getValue());
+            obj.write(msg.getParentValue());
+			obj.flush();
+			bOut.flush();
+        } catch (IOException ex) {
+            logger.error("Could not serialize message",ex);
+        }
+
+        byte[] data = bOut.toByteArray();
+        byte[] signature = (byte[]) msg.getProof();
+        PublicKey pubKey = controller.getStaticConf().getPublicKey(msg.getSender());
+        return TOMUtil.verifySignature(pubKey, data, signature);
+    }
     /*
      * This method is called when a check message is received
      * @param msg check message
      * @return conflict set message if there is a conflict, null otherwise
      */
-    public Pair<ConsensusMessage, Vector<Integer>> addCheck(ConsensusMessage msg) {
+    public void addCheck(ConsensusMessage msg) {
         checkLock.lock();
         try {
-            //System.out.println("addCheck: " + msg.getNumber() + " " + decisionMap.keySet());
-            CertifiedDecision decision = decisionMap.get(msg.getNumber());
-            if (decision != null) {
-                if (test||!Arrays.equals(msg.getValue(), decision.getDecision())) {
-                    ConsensusMessage conflictMessage = factory.createConflict(decision.getCID(), 0, decision.getDecision(),
-					decision.getReg());
-                    conflictMessage.setProof(decision.getConsMessages());
-                    conflictMessage.setLCset(LCMap.get(decision.getReg()));
-                    return Pair.of(conflictMessage, new Vector<>(Arrays.asList(msg.getSender())));
+            if (!hasValidProof(msg)) {
+                logger.error("Invalid proof for check message from " + msg.getSender());
+                return;
+            }
+            HashSet<ConsensusMessage> otherDecision = otherDecisionMap.get(msg.getNumber());
+            if (otherDecision == null) {
+                otherDecision = new HashSet<>();
+                otherDecisionMap.put(msg.getNumber(), otherDecision);
+            } 
+
+            if(otherDecision.add(msg)){
+                int count = 0;
+                for (ConsensusMessage m : otherDecision) {
+                    if (test || !Arrays.equals(msg.getValue(), m.getValue())) {
+                        if (++count == otherDecision.size()) {
+                            break;
+                        }
+                        communication.send(new int[]{m.getSender()}, msg);
+                        communication.send(new int[]{msg.getSender()}, m);
+                    }
                 }
             }
-            if (checkMap.get(msg.getNumber()) == null) {
-                checkMap.put(msg.getNumber(), new LinkedList<ConsensusMessage>());
+            CertifiedDecision decision = myDecisionMap.get(msg.getNumber());
+
+            if (decision != null) {
+                if (test || !Arrays.equals(msg.getValue(), decision.getDecision())) {
+                    checkConflict(decision, msg);
+                }
             }
-            checkMap.get(msg.getNumber()).add(msg);
+        } catch (Exception e) {
+
+            e.printStackTrace();
         } finally {
             checkLock.unlock();
         }
-        return null;
     }
 
     /*
@@ -115,9 +231,9 @@ public class Accountability {
     public CertifiedDecision getCheck(ConsensusMessage msg) {
         // checkLock.lock();
         try {
-            CertifiedDecision decision = decisionMap.get(msg.getNumber());
+            CertifiedDecision decision = myDecisionMap.get(msg.getNumber());
             if (decision != null) {
-                if (test||!Arrays.equals(msg.getValue(), decision.getDecision())) {
+                if (test || !Arrays.equals(msg.getValue(), decision.getDecision())) {
                     return decision;
                 }
             }
@@ -142,6 +258,7 @@ public class Accountability {
      *
      */
     public void addLC(int reg, HashSet<SignedObject> LC) {
+        System.out.println("addLC: " + reg + " " );
         checkLock.lock();
         try {
             LCMap.put(reg, LC);
