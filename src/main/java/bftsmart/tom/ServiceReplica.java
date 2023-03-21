@@ -23,6 +23,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.communication.ServerCommunicationSystem;
 import bftsmart.tom.core.ExecutionManager;
+import bftsmart.consensus.Consensus;
+import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.roles.Acceptor;
 import bftsmart.consensus.roles.Proposer;
@@ -435,7 +437,17 @@ public class ServiceReplica {
             
             //Deliver the batch and wait for replies
             TOMMessage[] replies = ((BatchExecutable) executor).executeBatch(id, SVController.getCurrentViewId(), batch, msgContexts);
-
+            if(SVController.getStaticConf().forensicsEnabled()) {
+                for (int i = 0; i < replies.length; i++) {
+                    if (replies[i] != null) {
+                        for(ConsensusMessage cm : msgContexts[i].getProof()) {
+                            replies[i].reply.setServerCid(cm.getNumber());
+                            replies[i].reply.setServerResult(cm.getValue());
+                            break;
+                        }
+                    }
+                }
+            }
             //Send the replies back to the client
             if (replies != null) {
                 

@@ -75,7 +75,7 @@ public class TOMConfiguration extends Configuration {
     /* accountability */
     private boolean accountabilityEnabled;
     private double faultDetectServerNum;
-    private boolean peerreviewEnabled;
+    private boolean forensicsEnabled;
     /** Creates a new instance of TOMConfiguration */
     public TOMConfiguration(int processId, KeyLoader loader) {
         super(processId, loader);
@@ -447,11 +447,14 @@ public class TOMConfiguration extends Configuration {
                     accountabilityEnabled = false;
                 }
             }
-            s = (String) configs.remove("system.peerreviewEnabled");
+            s = (String) configs.remove("system.forensicsEnabled");
             if (s == null) {
-                peerreviewEnabled = false;
+                forensicsEnabled = false;
             } else {
-                peerreviewEnabled = Boolean.parseBoolean(s);
+                forensicsEnabled = Boolean.parseBoolean(s);
+                if (forensicsEnabled) {
+                    accountabilityEnabled = true;
+                }
             }
 
         } catch (Exception e) {
@@ -666,8 +669,9 @@ public class TOMConfiguration extends Configuration {
     public boolean accountabilityEnabled() {
         return accountabilityEnabled;
     }
-    public boolean peerreviewEnabled() {
-        return peerreviewEnabled;
+
+    public boolean forensicsEnabled() {
+        return forensicsEnabled;
     }
     public int getFaultDetectServerBound(int cid) {
         return (int) (Math.floor((cid * faultDetectServerNum)));

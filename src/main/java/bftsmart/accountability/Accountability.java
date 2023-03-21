@@ -4,11 +4,8 @@ import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.communication.ServerCommunicationSystem;
-import bftsmart.consensus.Decision;
 import bftsmart.consensus.Epoch;
-import bftsmart.tom.core.ExecutionManager;
 import bftsmart.tom.leaderchange.CertifiedDecision;
-import bftsmart.tom.leaderchange.LCManager;
 import bftsmart.tom.util.TOMUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -20,18 +17,12 @@ import java.security.SignedObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Arrays;
 import java.util.Vector;
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
-
-
-
 
 public class Accountability {
     private Logger logger;
@@ -83,28 +74,31 @@ public class Accountability {
         } finally {
             checkLock.unlock();
         }
+        if (controller.getStaticConf().forensicsEnabled()) return ;
         for (ConsensusMessage msg : confilDecisions) {
             checkConflict(decision, msg);
         }
         
         // send check message
-        byte [] praentValue = getParentValue(decision);
         detectFrom = detecTo;
         detecTo = controller.getStaticConf().getFaultDetectServerBound(decision.getCID());
+        sendCheck(this.controller.getCurrentViewCheckers(detectFrom, detecTo), decision);
+        
+    }
+    
+    private void sendCheck(int[] targets, CertifiedDecision decision) {
+        byte [] praentValue = getParentValue(decision);
         proofExecutor.submit(() -> {
-            ConsensusMessage check = factory.createCheck(decision.getCID(), epoch.getTimestamp(), epoch.propValueHash, praentValue, decision.getReg());
+            ConsensusMessage check = factory.createCheck(decision.getCID(), 0, decision.getDecision(), praentValue, decision.getReg());
             // Create a cryptographic proof for this CHECK message
             logger.debug(
                     "Creating cryptographic proof for the correct CHECK message from consensus " + decision.getCID());
             insertProof(check);
 
-            communication.send(this.controller.getCurrentViewCheckers(detectFrom, detecTo), check);
+            communication.send(targets, check);
 
         });
-        
     }
-    
-
     private void checkConflict(CertifiedDecision decision, ConsensusMessage msg){
         if (test || Arrays.equals(msg.getParentValue(), getParentValue(decision))) {
             ConsensusMessage conflictMessage = factory.createConflict(decision.getCID(), 0, decision.getDecision(),
@@ -115,17 +109,7 @@ public class Accountability {
         } else {
             // send check message
             CertifiedDecision lastDecision = myDecisionMap.get(decision.getCID()-1);
-            byte [] praentValue = getParentValue(lastDecision);
-            proofExecutor.submit(() -> {
-                ConsensusMessage check = factory.createCheck(lastDecision.getCID(), 0, lastDecision.getDecision(), praentValue, lastDecision.getReg());
-                // Create a cryptographic proof for this CHECK message
-                logger.debug(
-                        "Creating cryptographic proof for the correct CHECK message from consensus " + decision.getCID());
-                insertProof(check);
-    
-                communication.send(new int[]{msg.getSender()}, check);
-    
-            });
+            sendCheck(new int[]{msg.getSender()}, lastDecision);
         }
     }
     private byte[] getParentValue(CertifiedDecision decision) {
@@ -183,35 +167,59 @@ public class Accountability {
      * @return conflict set message if there is a conflict, null otherwise
      */
     public void addCheck(ConsensusMessage msg) {
+        if (msg.fromClient()) {
+            addClientCheck(msg);
+            return;
+        }
         checkLock.lock();
         try {
             if (!hasValidProof(msg)) {
                 logger.error("Invalid proof for check message from " + msg.getSender());
                 return;
             }
-            HashSet<ConsensusMessage> otherDecision = otherDecisionMap.get(msg.getNumber());
-            if (otherDecision == null) {
-                otherDecision = new HashSet<>();
-                otherDecisionMap.put(msg.getNumber(), otherDecision);
-            } 
-
-            if(otherDecision.add(msg)){
-                int count = 0;
-                for (ConsensusMessage m : otherDecision) {
-                    if (test || !Arrays.equals(msg.getValue(), m.getValue())) {
-                        if (++count == otherDecision.size()) {
-                            break;
-                        }
-                        communication.send(new int[]{m.getSender()}, msg);
-                        communication.send(new int[]{msg.getSender()}, m);
-                    }
-                }
-            }
             CertifiedDecision decision = myDecisionMap.get(msg.getNumber());
 
             if (decision != null) {
                 if (test || !Arrays.equals(msg.getValue(), decision.getDecision())) {
                     checkConflict(decision, msg);
+                }
+            }
+            if (!controller.getStaticConf().forensicsEnabled()) {
+                HashSet<ConsensusMessage> otherDecision = otherDecisionMap.get(msg.getNumber());
+                if (otherDecision == null) {
+                    otherDecision = new HashSet<>();
+                    otherDecisionMap.put(msg.getNumber(), otherDecision);
+                } 
+
+                if(otherDecision.add(msg)){
+                    int count = 0;
+                    for (ConsensusMessage m : otherDecision) {
+                        if (test || !Arrays.equals(msg.getValue(), m.getValue())) {
+                            if (++count == otherDecision.size()) {
+                                break;
+                            }
+                            communication.send(new int[]{m.getSender()}, msg);
+                            communication.send(new int[]{msg.getSender()}, m);
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        } finally {
+            checkLock.unlock();
+        }
+    }
+
+    public void addClientCheck(ConsensusMessage msg) {
+        checkLock.lock();
+        try {
+            CertifiedDecision decision = myDecisionMap.get(msg.getNumber());
+            if (decision != null) {
+                if (test || !Arrays.equals(msg.getValue(), decision.getDecision())) {
+                    sendCheck(new int[]{msg.getSender()}, decision);
                 }
             }
         } catch (Exception e) {
@@ -258,7 +266,6 @@ public class Accountability {
      *
      */
     public void addLC(int reg, HashSet<SignedObject> LC) {
-        System.out.println("addLC: " + reg + " " );
         checkLock.lock();
         try {
             LCMap.put(reg, LC);

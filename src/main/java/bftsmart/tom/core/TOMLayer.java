@@ -24,6 +24,8 @@ import bftsmart.communication.client.RequestReceiver;
 import bftsmart.consensus.Consensus;
 import bftsmart.consensus.Decision;
 import bftsmart.consensus.Epoch;
+import bftsmart.consensus.messages.ConsensusMessage;
+import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.consensus.roles.Acceptor;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.statemanagement.StateManager;
@@ -347,6 +349,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
 		case ORDERED_REQUEST:
 		case UNORDERED_HASHED_REQUEST:
 		case UNORDERED_REQUEST:
+        case CHECK_CONFLICT:
 			// These messages should be processed
 			break;
         }
@@ -359,7 +362,14 @@ public final class TOMLayer extends Thread implements RequestReceiver {
             logger.debug("Received read-only TOMMessage from client " + msg.getSender() + " with sequence number " + msg.getSequence() + " for session " + msg.getSession());
 
             dt.deliverUnordered(msg, syncher.getLCManager().getLastReg());
-        } else {
+        } else if (msg.getReqType() == TOMMessageType.CHECK_CONFLICT) {
+            
+            ConsensusMessage cMsg = new ConsensusMessage(MessageFactory.CHECK, msg.getSender(), 0, msg.getSender(), msg.getServerResult());
+            cMsg.setFromClient(true);
+            cMsg.authenticated = true;
+            communication.getMessageHandler().processData(cMsg);
+            
+        } else{
             logger.debug("Received TOMMessage from client " + msg.getSender() + " with sequence number " + msg.getSequence() + " for session " + msg.getSession());
 
             if (clientsManager.requestReceived(msg, fromClient, communication)) {

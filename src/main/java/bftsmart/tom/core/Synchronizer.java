@@ -1208,7 +1208,7 @@ public class Synchronizer {
                         acceptor.getFactory().createAccept(currentCID, e.getTimestamp(), e.propValueHash, regency));
                 e.acceptSent();
             }
-            acceptor.getAccountability().addLC(regency, signedCollects);
+            if (controller.getStaticConf().accountabilityEnabled()) acceptor.getAccountability().addLC(regency, signedCollects);
         } else {
             logger.warn("Sync phase failed for regency" + regency);
         }

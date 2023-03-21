@@ -45,6 +45,8 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	private int operationId; // Sequence number defined by the client
 
 	private byte[] content = null; // Content of the message
+	private byte[] serverResult = null; // Result of the execution of the request in the server
+	private int serverCid = -1; // consensus id of the request in the server
 
 	//the fields bellow are not serialized!!!
 	private transient int id; // ID for this message. It should be unique
@@ -234,12 +236,18 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 		out.writeInt(sequence);
 		out.writeInt(operationId);
 		out.writeInt(replyServer);
-		
+		out.writeInt(serverCid);
 		if (content == null) {
 			out.writeInt(-1);
 		} else {
 			out.writeInt(content.length);
 			out.write(content);
+		}
+		if (serverResult == null) {
+			out.writeInt(-1);
+		} else {
+			out.writeInt(serverResult.length);
+			out.write(serverResult);
 		}
 	}
 
@@ -251,11 +259,16 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 		sequence = in.readInt();
 		operationId = in.readInt();
 		replyServer = in.readInt();
-		
+		serverCid = in.readInt();
 		int toRead = in.readInt();
 		if (toRead != -1) {
 			content = new byte[toRead];
 			in.readFully(content);
+		}
+		toRead = in.readInt();
+		if (toRead != -1) {
+			serverResult = new byte[toRead];
+			in.readFully(serverResult);
 		}
 
 		buildId();
@@ -389,5 +402,18 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 
 	public void setReplyServer(int replyServer) {
 		this.replyServer = replyServer;
+	}
+
+	public int getServerCid() {
+		return serverCid;
+	}
+	public void setServerCid(int serverCid) {
+		this.serverCid = serverCid;
+	}
+	public byte[] getServerResult() {
+		return serverResult;
+	}
+	public void setServerResult(byte[] serverResult) {
+		this.serverResult = serverResult;
 	}
 }

@@ -40,6 +40,7 @@ public class ConsensusMessage extends SystemMessage {
                               // Can be either a MAC vector or a signature
     private Object LCset; // Leader change set used when message type is CONFLICT  
     private int reg; // consensus view number
+    private boolean fromClient = false;
 
     /**
      * Creates a consensus message. Not used. TODO: How about making it private?
@@ -332,6 +333,13 @@ public class ConsensusMessage extends SystemMessage {
             append(value).
             append(parentValue).
             toHashCode();
+   }
+
+   public boolean fromClient() {
+        return fromClient;
+   }
+   public void setFromClient(boolean fromClient) {
+        this.fromClient = fromClient;
    }
 
 }

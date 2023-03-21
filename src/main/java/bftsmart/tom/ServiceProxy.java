@@ -19,18 +19,26 @@ import bftsmart.tom.core.TOMSender;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.reconfiguration.ReconfigureReply;
+import bftsmart.reconfiguration.ViewController;
 import bftsmart.reconfiguration.views.View;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.Extractor;
 import bftsmart.tom.util.KeyLoader;
 import bftsmart.tom.util.TOMUtil;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.security.Provider;
+import java.security.PublicKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +71,7 @@ public class ServiceProxy extends TOMSender {
 	private int replyServer;
 	private HashResponseController hashResponseController;
 	private int invokeUnorderedHashedTimeout = 10;
+	private boolean test = false;
 
 	/**
 	 * Constructor
@@ -411,16 +420,31 @@ public class ServiceProxy extends TOMSender {
 					
 					for (int i = 0; i < replies.length; i++) {
 
-						if ((i != pos || getViewManager().getCurrentViewN() == 1) && replies[i] != null
-								&& (comparator.compare(replies[i].getContent(), reply.getContent()) == 0)) {
-							sameContent++;
-							if (sameContent >= replyQuorum) {
-								response = extractor.extractResponse(replies, sameContent, pos);
-								reqId = -1;
-								this.sm.release(); // resumes the thread that is executing the "invoke" method
-								canReceiveLock.unlock();
-								return;
-							}
+						if ((i != pos || getViewManager().getCurrentViewN() == 1) && replies[i] != null ) {
+							if((comparator.compare(replies[i].getContent(), reply.getContent()) == 0)) {
+								sameContent++;
+								if (sameContent >= replyQuorum) {
+									response = extractor.extractResponse(replies, sameContent, pos);
+									reqId = -1;
+									this.sm.release(); // resumes the thread that is executing the "invoke" method
+									canReceiveLock.unlock();
+									return;
+								}
+								if (test) {
+									TOMMessage sm = new TOMMessage(reply.getSender(),getSession(), reqId, operationId, null,
+										getViewManager().getCurrentViewId(), TOMMessageType.CHECK_CONFLICT);	
+									sm.setServerCid(replies[i].getServerCid());	
+									sm.setServerResult(replies[i].getServerResult());
+									TOMulticast(sm);
+								}
+							} else if (getViewManager().getStaticConf().forensicsEnabled()){
+								TOMMessage sm = new TOMMessage(reply.getSender(),getSession(), reqId, operationId, null,
+									getViewManager().getCurrentViewId(), TOMMessageType.CHECK_CONFLICT);
+								sm.setServerCid(replies[i].getServerCid());	
+								sm.setServerResult(replies[i].getServerResult());
+								TOMulticast(sm);
+							}	
+							
 						}
 					}
 				}
