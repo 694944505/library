@@ -1,0 +1,37 @@
+---
+## basic config
+
+# NOTE: change to your aws ec2 key file here
+#ansible_ssh_private_key_file: ~/.ssh/ted-aws-key2.pem
+
+# the rest of config works for root 18.04 image on Amazon EC2
+
+ansible_connection: ssh
+ansible_ssh_user: root
+ansible_ssh_pass: "zZ3141592654"
+# remote directory that keeps the work directory for the running app
+testbed_prefix: "/home/root/testbed_library"
+# must use Python 3
+ansible_python_interpreter: /usr/bin/python3
+
+## build config
+hs_flags: "-g -DHOTSTUFF_ENABLE_BENCHMARK"
+
+## app config
+# process name that is used by killall in reset
+bin_name: hotstuff-app
+# binary path (remote)
+replica_bin: "/home/root/library/build/install/library"
+client_bin: "/home/root/library/build/install/library"
+# remote repo path
+hs_repo_dir: "/home/root/library"
+# local source code path (that will be copied to the remote)
+hs_local_repo_dir: "../../"
+hs_conf_dir: "conf"
+hs_log_dir: "log"
+hs_base_conf: "/root/library_ori/library/config/system.config"
+hs_host_conf: "/root/library_ori/library/config/hosts.config"
+
+# enable/disable TLS encrpytion for inter-replica communication
+hs_tls: false
+#cd /home/root/library/build/install/library && java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.microbenchmarks.ThroughputLatencyServer 0 10 0 0 true default

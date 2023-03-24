@@ -1,0 +1,3 @@
+---
+- shell: killall -9 java || true
+  ignore_errors: true

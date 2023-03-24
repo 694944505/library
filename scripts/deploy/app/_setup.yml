@@ -1,0 +1,18 @@
+---
+# available vars:
+# workdir -- the local directory of run_id
+
+- name: setup libhotstuff example binaries
+  block:
+    - file:
+        path: "{{ hs_repo_dir }}"
+        state: directory
+    - synchronize:
+        archive: true
+        delete: true
+        src: "{{ (workdir, hs_local_repo_dir, '') | path_join }}"
+        dest: "{{ hs_repo_dir }}"
+        mode: push
+        rsync_opts:
+          - "--exclude=.git"
+
