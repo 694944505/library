@@ -1,0 +1,40 @@
+-- Creating current view from configuration file
+  [0]         Version: 1
+         SerialNumber: 1
+             IssuerDN: CN=CommitmentTest2
+           Start Date: Wed Mar 22 14:19:37 CST 2023
+           Final Date: Tue Mar 22 14:19:36 CST 2033
+            SubjectDN: CN=CommitmentTest2
+           Public Key: RSA Public Key
+            modulus: a27eba18856290119f392c1d4c92e4f812b3708e5b47694a2770ebf81a20aec6c4125af1de13714533f77e9bd6e7fb1b0478c1d398bb02f1effbbfc05fccccf79ae5f46b0d27970faaf30cb3375bdec63f403268c96094c9f8861435dbe87393
+    public exponent: 10001
+
+  Signature Algorithm: SHA1WithRSAEncryption
+            Signature: 6a818da44fb9969c0162624218816a1d9e988257
+                       f385c55ac421e4c596a1cad994d09e59dcdb7e5c
+                       2883705994a0b365284da5daf49a5273f153fabc
+                       88034ec550014609ee475a8f68c63bee8d84bba3
+                       6254d0b39b76097a439394ea73f0eeca
+
+-- SSL/TLS handshake complete!, Id:0  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+-- SSL/TLS handshake complete!, Id:1  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+:bftsmart.peerreview:20230322.141937.354:new bogus app null
+======init startNode2
+===init end
+-- ID = 2
+-- N = 4
+-- F = 1
+-- Port (client <-> server) = 11000
+-- Port (server <-> server) = 12000
+-- requestTimeout = 2000
+-- maxBatch = 400
+-- Binded replica to IP address 172.30.195.26
+-- SSL/TLS enabled, protocol version: TLSv1.2
+-- In current view: ID:0; F:1; Processes:0(/172.30.195.24:11000),1(/172.30.195.25:11000),2(/172.30.195.26:11000),3(/172.30.195.27:11000),
+-- Retrieving State
+-- Session Created, active clients=0
+-- Impossible to connect to 3
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- ClientID 2, re-connection to replica 3, at address: /172.30.195.27:11000

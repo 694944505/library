@@ -1,0 +1,1306 @@
+-- Creating current view from configuration file
+  [0]         Version: 1
+         SerialNumber: 1
+             IssuerDN: CN=CommitmentTest1
+           Start Date: Wed Mar 22 15:42:14 CST 2023
+           Final Date: Tue Mar 22 15:42:14 CST 2033
+            SubjectDN: CN=CommitmentTest1
+           Public Key: RSA Public Key
+            modulus: c583527113b50a4b9827a06c8d6b20739dc14ff9273ab9cd4383598e86ac5b581d7c766413181c133dfb6bd17f8c55b4f6efbb6a13163b17e3a3ded4b5efa3615a78716a4bd0a7fb281c6a9fae119b351fbc3720450bf5c372ac8d475c21cae9
+    public exponent: 10001
+
+  Signature Algorithm: SHA1WithRSAEncryption
+            Signature: a6d9496a4bab96118e97c6ffb0abc24ea0bbb111
+                       d721726f862abd6d933f71b21e9beea3c519d24b
+                       81e92e1756bb68b761549cfde4aca08227a01986
+                       a25196154204805955be808258883e0b0d16d29e
+                       4af369fe7bff7dc7a53a958dac4edc0b
+
+-- Connection refused (SocketException)
+:bftsmart.peerreview:20230322.154214.880:new bogus app null
+======init startNode1
+===init end
+-- ID = 1
+-- N = 16
+-- F = 5
+-- Port (client <-> server) = 11000
+-- Port (server <-> server) = 12000
+-- requestTimeout = 2000
+-- maxBatch = 400
+-- Binded replica to IP address 172.30.195.38
+-- SSL/TLS enabled, protocol version: TLSv1.2
+-- In current view: ID:0; F:5; Processes:0(/172.30.195.28:11000),1(/172.30.195.38:11000),2(/172.30.195.31:11000),3(/172.30.195.41:11000),4(/172.30.195.44:11000),5(/172.30.195.40:11000),6(/172.30.195.42:11000),7(/172.30.195.35:11000),8(/172.30.195.32:11000),9(/172.30.195.34:11000),10(/172.30.195.43:11000),11(/172.30.195.37:11000),12(/172.30.195.39:11000),13(/172.30.195.45:11000),14(/172.30.195.33:11000),15(/172.30.195.29:11000),
+-- Retrieving State
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Impossible to connect to 2
+-- Impossible to connect to 3
+-- Impossible to connect to 4
+-- Impossible to connect to 5
+-- Impossible to connect to 6
+-- Impossible to connect to 7
+-- Impossible to connect to 8
+-- Impossible to connect to 9
+-- Impossible to connect to 10
+-- Impossible to connect to 11
+-- Impossible to connect to 12
+-- Impossible to connect to 13
+-- Impossible to connect to 14
+-- Impossible to connect to 15
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- SSL/TLS handshake complete!, Id:0  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Replica state is up to date
+-- 
+		###################################
+		    Ready to process operations    
+		###################################
+-- Session Created, active clients=0
+-- ClientID 1, re-connection to replica 2, at address: /172.30.195.31:11000
+-- ClientID 1, re-connection to replica 4, at address: /172.30.195.44:11000
+-- ClientID 1, re-connection to replica 3, at address: /172.30.195.41:11000
+-- ClientID 1, re-connection to replica 5, at address: /172.30.195.40:11000
+-- ClientID 1, re-connection to replica 9, at address: /172.30.195.34:11000
+-- ClientID 1, re-connection to replica 8, at address: /172.30.195.32:11000
+-- ClientID 1, re-connection to replica 7, at address: /172.30.195.35:11000
+-- ClientID 1, re-connection to replica 6, at address: /172.30.195.42:11000
+-- ClientID 1, re-connection to replica 12, at address: /172.30.195.39:11000
+-- ClientID 1, re-connection to replica 10, at address: /172.30.195.43:11000
+-- ClientID 1, re-connection to replica 11, at address: /172.30.195.37:11000
+-- ClientID 1, re-connection to replica 13, at address: /172.30.195.45:11000
+-- ClientID 1, re-connection to replica 14, at address: /172.30.195.33:11000
+-- ClientID 1, re-connection to replica 15, at address: /172.30.195.29:11000
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+--- (Context)  iterations: 100000 // regency: 0 // consensus: 328 ---
+--- Measurements after 100000 ops (100000 samples) ---
+Throughput = 586.3452 operations/sec (Maximum observed: 586.3452 ops/sec)
+Total latency = 67288.14934536 (+/- 0) us 
+Consensus latency = 67187.58952455 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 437.34675779 (+/- 171) us 
+Propose latency = 964.21544455 (+/- 616) us 
+Write latency = 31066.37078898 (+/- 0) us 
+Accept latency = 35157.003291019995 (+/- 0) us 
+Batch average size = 305.0364741641337 (+/- 145) requests
+--- (Context)  iterations: 200000 // regency: 0 // consensus: 579 ---
+--- Measurements after 200000 ops (100000 samples) ---
+Throughput = 4746.535 operations/sec (Maximum observed: 4746.535 ops/sec)
+Total latency = 68145.63458528 (+/- 0) us 
+Consensus latency = 67084.85625475 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 1395.19933583 (+/- 0) us 
+Propose latency = 914.1797025 (+/- 382) us 
+Write latency = 30723.32812692 (+/- 0) us 
+Accept latency = 35447.34842533 (+/- 0) us 
+Batch average size = 398.992 (+/- 14) requests
+--- (Context)  iterations: 300000 // regency: 0 // consensus: 831 ---
+--- Measurements after 300000 ops (100000 samples) ---
+Throughput = 4708.985 operations/sec (Maximum observed: 4746.535 ops/sec)
+Total latency = 67765.15336263 (+/- 0) us 
+Consensus latency = 67746.58858325 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 390.60753827999997 (+/- 792) us 
+Propose latency = 975.57617994 (+/- 665) us 
+Write latency = 31613.10243803 (+/- 0) us 
+Accept latency = 35157.90996528 (+/- 0) us 
+Batch average size = 397.42063492063494 (+/- 25) requests
+--- (Context)  iterations: 400000 // regency: 0 // consensus: 1082 ---
+--- Measurements after 400000 ops (100000 samples) ---
+Throughput = 4674.8633 operations/sec (Maximum observed: 4746.535 ops/sec)
+Total latency = 68413.61746036001 (+/- 0) us 
+Consensus latency = 68282.19988803 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 480.552647 (+/- 1415) us 
+Propose latency = 908.6411814200001 (+/- 384) us 
+Write latency = 31854.86764308 (+/- 0) us 
+Accept latency = 35518.69106353 (+/- 0) us 
+Batch average size = 398.9760956175299 (+/- 10) requests
+--- (Context)  iterations: 500000 // regency: 0 // consensus: 1332 ---
+--- Measurements after 500000 ops (100000 samples) ---
+Throughput = 4714.3125 operations/sec (Maximum observed: 4746.535 ops/sec)
+Total latency = 66858.70403304 (+/- 0) us 
+Consensus latency = 66744.79401808 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 459.57292046 (+/- 1436) us 
+Propose latency = 911.81710628 (+/- 321) us 
+Write latency = 30665.0220911 (+/- 0) us 
+Accept latency = 35167.9548207 (+/- 0) us 
+Batch average size = 399.152 (+/- 13) requests
+--- (Context)  iterations: 600000 // regency: 0 // consensus: 1583 ---
+--- Measurements after 600000 ops (100000 samples) ---
+Throughput = 4719.8755 operations/sec (Maximum observed: 4746.535 ops/sec)
+Total latency = 67994.01960826 (+/- 0) us 
+Consensus latency = 67938.20546123 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 413.52346033 (+/- 1005) us 
+Propose latency = 889.2633604 (+/- 371) us 
+Write latency = 31842.22964229 (+/- 0) us 
+Accept latency = 35206.71245854 (+/- 0) us 
+Batch average size = 398.21115537848607 (+/- 18) requests
+--- (Context)  iterations: 700000 // regency: 0 // consensus: 1833 ---
+--- Measurements after 700000 ops (100000 samples) ---
+Throughput = 4646.1924 operations/sec (Maximum observed: 4746.535 ops/sec)
+Total latency = 68710.85196201 (+/- 0) us 
+Consensus latency = 68616.35448006999 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 432.86491115 (+/- 870) us 
+Propose latency = 900.40423519 (+/- 255) us 
+Write latency = 32031.1028121 (+/- 0) us 
+Accept latency = 35684.84743278 (+/- 0) us 
+Batch average size = 400.0 (+/- 0) requests
+--- (Context)  iterations: 800000 // regency: 0 // consensus: 2083 ---
+--- Measurements after 800000 ops (100000 samples) ---
+Throughput = 4749.24 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 67130.22079076999 (+/- 0) us 
+Consensus latency = 67084.91305189 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 429.85876575000003 (+/- 967) us 
+Propose latency = 958.80499931 (+/- 446) us 
+Write latency = 30557.42728506 (+/- 0) us 
+Accept latency = 35568.68076752 (+/- 0) us 
+Batch average size = 400.0 (+/- 0) requests
+--- (Context)  iterations: 900000 // regency: 0 // consensus: 2333 ---
+--- Measurements after 900000 ops (100000 samples) ---
+Throughput = 4707.655 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 68514.68470259 (+/- 0) us 
+Consensus latency = 68441.78873789 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 422.26283087 (+/- 855) us 
+Propose latency = 906.09972696 (+/- 316) us 
+Write latency = 31783.52088742 (+/- 0) us 
+Accept latency = 35752.168123510004 (+/- 0) us 
+Batch average size = 399.656 (+/- 5) requests
+--- (Context)  iterations: 1000000 // regency: 0 // consensus: 2583 ---
+--- Measurements after 1000000 ops (100000 samples) ---
+Throughput = 4699.4688 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 67334.43821611001 (+/- 0) us 
+Consensus latency = 67338.00402044 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 392.42599865 (+/- 608) us 
+Propose latency = 923.34267987 (+/- 420) us 
+Write latency = 31014.860780159997 (+/- 0) us 
+Accept latency = 35399.80056041 (+/- 0) us 
+Batch average size = 400.0 (+/- 0) requests
+--- (Context)  iterations: 1100000 // regency: 0 // consensus: 2834 ---
+--- Measurements after 1100000 ops (100000 samples) ---
+Throughput = 4665.7026 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 68425.84520297 (+/- 0) us 
+Consensus latency = 68394.21904351 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 392.81133266 (+/- 602) us 
+Propose latency = 929.66935429 (+/- 368) us 
+Write latency = 31549.94260377 (+/- 0) us 
+Accept latency = 35914.60708545 (+/- 0) us 
+Batch average size = 398.9681274900398 (+/- 16) requests
+--- (Context)  iterations: 1200000 // regency: 0 // consensus: 3084 ---
+--- Measurements after 1200000 ops (100000 samples) ---
+Throughput = 4738.887 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 66770.08113347 (+/- 0) us 
+Consensus latency = 66676.07733872 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 443.93729187 (+/- 1031) us 
+Propose latency = 909.35328384 (+/- 351) us 
+Write latency = 30888.376063519998 (+/- 0) us 
+Accept latency = 34878.34799136 (+/- 0) us 
+Batch average size = 400.0 (+/- 0) requests
+--- (Context)  iterations: 1300000 // regency: 0 // consensus: 3335 ---
+--- Measurements after 1300000 ops (100000 samples) ---
+Throughput = 4501.6655 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 69851.00673483 (+/- 0) us 
+Consensus latency = 69766.7508417 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 432.08352317 (+/- 1059) us 
+Propose latency = 893.94202732 (+/- 236) us 
+Write latency = 33032.24329545 (+/- 0) us 
+Accept latency = 35840.56551893 (+/- 0) us 
+Batch average size = 398.1115537848606 (+/- 21) requests
+--- (Context)  iterations: 1400000 // regency: 0 // consensus: 3587 ---
+--- Measurements after 1400000 ops (100000 samples) ---
+Throughput = 4731.264 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 66559.71762 (+/- 0) us 
+Consensus latency = 66512.92519032 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 404.75292173 (+/- 820) us 
+Propose latency = 928.7479807599999 (+/- 335) us 
+Write latency = 30468.78495515 (+/- 0) us 
+Accept latency = 35115.39225441 (+/- 0) us 
+Batch average size = 397.0436507936508 (+/- 29) requests
+--- (Context)  iterations: 1500000 // regency: 0 // consensus: 3840 ---
+--- Measurements after 1500000 ops (100000 samples) ---
+Throughput = 4672.242 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 67124.25968614 (+/- 0) us 
+Consensus latency = 67066.04845848 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 416.21146062 (+/- 1111) us 
+Propose latency = 946.06653632 (+/- 430) us 
+Write latency = 31389.08047571 (+/- 0) us 
+Accept latency = 34730.90144645 (+/- 0) us 
+Batch average size = 395.85770750988144 (+/- 35) requests
+--- (Context)  iterations: 1600000 // regency: 0 // consensus: 4097 ---
+--- Measurements after 1600000 ops (100000 samples) ---
+Throughput = 4600.6626 operations/sec (Maximum observed: 4749.24 ops/sec)
+Total latency = 67948.73912733 (+/- 0) us 
+Consensus latency = 67844.84275402 (+/- 0) us 
+Pre-consensus latency = 0.0 (+/- 0) us 
+Pos-consensus latency = 452.26303574 (+/- 1501) us 
+Propose latency = 911.29262309 (+/- 430) us 
+Write latency = 31812.662022070002 (+/- 0) us 
+Accept latency = 35120.88810886 (+/- 0) us 
+Batch average size = 388.07782101167317 (+/- 43) requests
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)
+-- Impossible to connect to client. (Connection reset by peer)

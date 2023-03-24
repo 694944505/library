@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -95,6 +96,8 @@ public class PeerReviewTransport extends ServersCommunicationLayer implements Tr
     private PeerReview<HandleImpl, IdImpl> pr;
     private Map<Integer, HandleImpl> idMap = new HashMap<Integer, HandleImpl>();
     private Player player;
+    private int num=0;
+    private Vector<Map<String,Object>> options = new Vector<Map<String,Object>>(){{add(null);add(new HashMap(){{put(PeerReview.DONT_COMMIT, new Object());}});}};
     public PeerReviewTransport(ServerViewController controller,
             LinkedBlockingQueue<SystemMessage> inQueue, 
             LinkedBlockingQueue<Pair<HandleImpl, ByteBuffer>> prQueue,
@@ -138,7 +141,11 @@ public class PeerReviewTransport extends ServersCommunicationLayer implements Tr
               logger.debug("Queueing (delivering) my own message, me:{}", target);
           }
           else{
-              getConnection(target).send(m.array());
+
+              //System.out.println("sending to "+target);
+              byte[] data = new byte[m.remaining()];
+              System.arraycopy(m.array(), m.position(), data, 0, data.length);
+              getConnection(target).send(data);
           }
       } catch (InterruptedException ex) {
         logger.error("Interruption while inserting message into inqueue", ex);
@@ -155,6 +162,7 @@ public class PeerReviewTransport extends ServersCommunicationLayer implements Tr
     }
     @Override
     public void send(int[] targets, SystemMessage sm, boolean useMAC) {
+      //System.out.println("sending to with"+ Arrays.toString(targets)+" "+ sm.toString());
       ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
       try {
           new ObjectOutputStream(bOut).writeObject(sm);
@@ -171,11 +179,11 @@ public class PeerReviewTransport extends ServersCommunicationLayer implements Tr
       /*Tulio A. Ribeiro*/
       Integer[] targetsShuffled = Arrays.stream( targets ).boxed().toArray( Integer[]::new );
       Collections.shuffle(Arrays.asList(targetsShuffled), new Random(System.nanoTime())); 
-      ByteBuffer buf = ByteBuffer.wrap(messageData);
       for (int target : targetsShuffled) {
         
-        
-        pr.sendMessage(getHandle(target), buf, null, null);
+        ByteBuffer buf = ByteBuffer.wrap(messageData);
+        pr.sendMessage(getHandle(target), buf, null, null );
+        pr.sendMessage(getHandle(target), buf, null, options.get(1) );
         logger.debug("Sending message from:{} -> to:{}.", me,  target);
       }
     }

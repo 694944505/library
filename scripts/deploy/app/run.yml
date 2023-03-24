@@ -1,0 +1,46 @@
+---
+# available vars:
+# last_state -- the content of state.json
+# nid -- host_idx (with 0 as default)
+# ngroup -- the group of nodes involved in the build
+# testbed -- the remote path of run_id
+
+- vars:
+    conf_dir: "{{ (testbed, hs_conf_dir) | path_join }}"
+    log_dir: "{{ (testbed, hs_log_dir) | path_join }}"
+  block:
+    - shell: killall -9 java || true
+      ignore_errors: true
+    - shell: rm -fr /home/root/library_pr/build/install/library/config/currentView
+      ignore_errors: true
+    - shell: rm -fr /home/root/library_pr/build/install/library/Commit* /home/root/library_pr/build/install/library/Node*
+      ignore_errors: true
+    - name: create testbed dirs
+      block:
+        - file:
+            path: "{{ conf_dir }}"
+            state: directory
+        - file:
+            path: "{{ log_dir }}"
+            state: directory
+    - name: copy the base conf file
+      copy:
+        src: "{{ hs_base_conf }}"
+        dest: "{{ (replica_bin , 'config/system.config')|path_join }}"
+        mode: '0644'
+    - name: copy the host conf file
+      copy:
+        src: "{{ hs_host_conf }}"
+        dest: "{{ (replica_bin , 'config/hosts.config')|path_join}}"
+        mode: '0644'
+    - name: start the hotstuff replica
+      library:
+        bin: "{{ replica_bin | default('~/libhotstuff/examples/hotstuff_app') }}"
+        log_dir: "{{ log_dir }}"
+        cwd: "{{ conf_dir }}"
+        conf: "{{ extra_conf | basename }}"
+        tls: "{{ hs_tls | default(false) }}"
+        host_idx: "{{ host_idx | default(0) }}"
+      environment:
+        PATH: /sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/snap/bin
+      register: spawn_results

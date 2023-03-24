@@ -152,7 +152,7 @@ public class PeerReviewService implements PeerReviewCallback<HandleImpl, IdImpl>
     public void messageReceived(HandleImpl i, ByteBuffer message,
         Map<String, Object> options) throws IOException {
       // read data length
-      
+      //System.out.println("received");
       // -1 because we don't want to read the MAC
       byte[] data = new byte[message.remaining()];
       System.arraycopy(message.array(), message.position(), data, 0, data.length);
@@ -163,6 +163,7 @@ public class PeerReviewService implements PeerReviewCallback<HandleImpl, IdImpl>
         sm.authenticated = true;
         replica.getServerCommunicationSystem().getMessageHandler().processData(sm);
       } catch (ClassNotFoundException ex) {
+        ex.printStackTrace();
         //logger.log("Failed to deserialize message", ex);
       } 
       
@@ -176,11 +177,7 @@ public class PeerReviewService implements PeerReviewCallback<HandleImpl, IdImpl>
     public void notifyStatusChange(
         IdImpl id,
         int newStatus) {
-      if (logger.level <= Logger.INFO) logger.log("notifyStatusChange("+id+","+PeerReviewImpl.getStatusString(newStatus)+")");
-      if (newStatus != STATUS_TRUSTED) {
-        logger.log("Failure, Node not trusted: "+id+" at "+player.localHandle);
-        //System.exit(1);
-      }
+      
       //TODO
       //addStatusNotification(this.player.localHandle,id,newStatus);
     }

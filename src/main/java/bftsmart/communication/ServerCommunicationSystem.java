@@ -225,6 +225,7 @@ public class ServerCommunicationSystem extends Thread {
     
                     if (buf != null) {
                         logger.debug("<-- receiving, msg:");
+                        //System.out.println("<-- receiving, msg:");
                         try {
                             pr.messageReceived(buf.getLeft(), buf.getRight(), null);
                         } catch (IOException e) {

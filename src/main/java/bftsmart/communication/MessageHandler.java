@@ -50,6 +50,7 @@ public class MessageHandler {
 
 	@SuppressWarnings("unchecked")
 	public void processData(SystemMessage sm) {
+		//System.out.println("message received from"+sm.toString()+"\n" +(sm instanceof SMMessage)+sm.authenticated);
 		if (sm instanceof ConsensusMessage) {
 
 			int myId = tomLayer.controller.getStaticConf().getProcessId();

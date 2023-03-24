@@ -1,0 +1,39 @@
+-- Creating current view from configuration file
+  [0]         Version: 1
+         SerialNumber: 1
+             IssuerDN: CN=CommitmentTest3
+           Start Date: Wed Mar 22 14:19:37 CST 2023
+           Final Date: Tue Mar 22 14:19:36 CST 2033
+            SubjectDN: CN=CommitmentTest3
+           Public Key: RSA Public Key
+            modulus: 9903cae9502c31515f077fb214eba114661423c01aa54f31e1f99d9a16810a18b6b903126e1c34d9ccc5861ee3d7d8b04fbd36785db6d2b9edddebcc1a40488c70c392798f699578f278337f3c1f6ca969778131504694d00579a5c166ad1fb3
+    public exponent: 10001
+
+  Signature Algorithm: SHA1WithRSAEncryption
+            Signature: 6ce5039ca71ac1ba46776beec0a6b10c49385507
+                       55334e0882be8a8fd623326004c8f522436cb47d
+                       ba7f0a59053d4b525e673be433252ff42a9956a7
+                       df0635cecde86dc143b69df2e81540e8d6407711
+                       e3088f302d9d5c68044256576786acce
+
+-- SSL/TLS handshake complete!, Id:0  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+-- SSL/TLS handshake complete!, Id:1  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+-- SSL/TLS handshake complete!, Id:2  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+:bftsmart.peerreview:20230322.141937.373:new bogus app null
+======init startNode3
+===init end
+-- ID = 3
+-- N = 4
+-- F = 1
+-- Port (client <-> server) = 11000
+-- Port (server <-> server) = 12000
+-- requestTimeout = 2000
+-- maxBatch = 400
+-- Binded replica to IP address 172.30.195.27
+-- SSL/TLS enabled, protocol version: TLSv1.2
+-- In current view: ID:0; F:1; Processes:0(/172.30.195.24:11000),1(/172.30.195.25:11000),2(/172.30.195.26:11000),3(/172.30.195.27:11000),
+-- Retrieving State
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0

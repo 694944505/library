@@ -235,7 +235,7 @@ public abstract class StateManager {
             
            logger.debug("Sending CID query with ID {} to replicas {}", queryID, target);
             
-           queryID++;
+           //queryID++;
 
             currentCID = new StandardSMMessage(me, queryID, TOMUtil.SM_ASK_INITIAL, 0, null, null, 0, 0);
             
@@ -249,7 +249,7 @@ public abstract class StateManager {
     }
 
     public void currentConsensusIdAsked(int sender, int id) {
-        
+       // System.out.println("Received CID query from {} with ID {}"+sender+" "+id);
         logger.debug("Received CID query from {} with ID {}",sender,id);
         
         int me = SVController.getStaticConf().getProcessId();

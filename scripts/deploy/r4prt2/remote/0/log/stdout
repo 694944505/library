@@ -1,0 +1,42 @@
+-- Creating current view from configuration file
+  [0]         Version: 1
+         SerialNumber: 1
+             IssuerDN: CN=CommitmentTest0
+           Start Date: Wed Mar 22 14:19:37 CST 2023
+           Final Date: Tue Mar 22 14:19:36 CST 2033
+            SubjectDN: CN=CommitmentTest0
+           Public Key: RSA Public Key
+            modulus: a10065ad3c3107ea2619988418c9059c1ca8266b5ba1974f61e0dddc67564549beb0fd40215d495238dd3ac7f118a50f08f79dc2257228d203fd3071e172eae1a2d2ef788c71534894216a6c297a87724ba65d0557711d9b8d98f27ea7eecaed
+    public exponent: 10001
+
+  Signature Algorithm: SHA1WithRSAEncryption
+            Signature: 43d89ebaabb187877f9599e43864a735128d33e0
+                       64f18c0b6083a77c053624b099a2c246732fc1bd
+                       dd1a94d6161c60ec19a74c55e0be1db6b309e5eb
+                       a162b818231bb3d2dd76c7f32ae339a4da9988aa
+                       7e75dc9965d1fc45f2c62e49bbfd8f63
+
+:bftsmart.peerreview:20230322.141936.869:new bogus app null
+======init startNode0
+===init end
+-- ID = 0
+-- N = 4
+-- F = 1
+-- Port (client <-> server) = 11000
+-- Port (server <-> server) = 12000
+-- requestTimeout = 2000
+-- maxBatch = 400
+-- Binded replica to IP address 172.30.195.24
+-- SSL/TLS enabled, protocol version: TLSv1.2
+-- In current view: ID:0; F:1; Processes:0(/172.30.195.24:11000),1(/172.30.195.25:11000),2(/172.30.195.26:11000),3(/172.30.195.27:11000),
+-- Retrieving State
+-- Session Created, active clients=0
+-- Impossible to connect to 1
+-- Impossible to connect to 2
+-- Impossible to connect to 3
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- ClientID 0, re-connection to replica 1, at address: /172.30.195.25:11000
+-- ClientID 0, re-connection to replica 2, at address: /172.30.195.26:11000
+-- ClientID 0, re-connection to replica 3, at address: /172.30.195.27:11000

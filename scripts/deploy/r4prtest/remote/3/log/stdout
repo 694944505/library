@@ -1,0 +1,50 @@
+-- Creating current view from configuration file
+  [0]         Version: 1
+         SerialNumber: 1
+             IssuerDN: CN=CommitmentTest3
+           Start Date: Wed Mar 22 14:16:21 CST 2023
+           Final Date: Tue Mar 22 14:16:21 CST 2033
+            SubjectDN: CN=CommitmentTest3
+           Public Key: RSA Public Key
+            modulus: 823c14276fec582ccd288ae37e31c9ae7e918c9f4558c2bf4d1cdae561654c2fb91acc8999b90cffe5c2d882a947b7987b66c3de02374d1322d6320a6bdacc4cbd866dbd914a56c9df9a7e66f157d7e9a90c86480243a17baaf185f75125e7ed
+    public exponent: 10001
+
+  Signature Algorithm: SHA1WithRSAEncryption
+            Signature: 77915fad5b4594b1ee39ebe4e4a906d84e577ed8
+                       4688904fbbaf8168a50cbb1eff62eb0308f8cf39
+                       5186396a08de3d5f4c7bed37c57478c2729dbb2a
+                       7083bf1c54e28bc6ba0393e460680af0b90a5ae6
+                       adad4ea9128d9637d007235e176863de
+
+-- SSL/TLS handshake complete!, Id:0  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+-- SSL/TLS handshake complete!, Id:1  ## CipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+-- Connection refused (SocketException)
+:bftsmart.peerreview:20230322.141621.891:new bogus app null
+======init startNode3
+===init end
+-- ID = 3
+-- N = 4
+-- F = 1
+-- Port (client <-> server) = 11000
+-- Port (server <-> server) = 12000
+-- requestTimeout = 2000
+-- maxBatch = 400
+-- Binded replica to IP address 172.30.195.27
+-- SSL/TLS enabled, protocol version: TLSv1.2
+-- In current view: ID:0; F:1; Processes:0(/172.30.195.24:11000),1(/172.30.195.25:11000),2(/172.30.195.26:11000),3(/172.30.195.27:11000),
+-- Retrieving State
+-- Impossible to connect to 2
+-- Session Created, active clients=0
+-- Connection refused (SocketException)
+-- Connection refused (SocketException)
+-- Session Created, active clients=0
+-- Session Created, active clients=0
+-- Connection refused (SocketException)
+-- ClientID 3, re-connection to replica 2, at address: /172.30.195.26:11000
+-- Connection refused (SocketException)
+-- Connection refused (SocketException)
+-- Connection refused (SocketException)
+-- ClientID 3, re-connection to replica 2, at address: /172.30.195.26:11000
+-- Connection refused (SocketException)
+-- Connection refused (SocketException)
+-- Connection refused (SocketException)

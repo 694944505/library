@@ -136,4 +136,15 @@ public abstract class SMMessage extends SystemMessage {
         state = (ApplicationState) in.readObject();
         view = (View) in.readObject();
     }
+    @Override
+    public String toString(){
+        String res="";
+        res+=String.valueOf(cid)+" ";
+        res+=String.valueOf(type)+" ";
+        res+=String.valueOf(regency)+" ";
+        res+=String.valueOf(leader)+" ";
+        if(state != null)res+=String.valueOf(state.hashCode())+" state==";
+        if(view !=null)res+=String.valueOf(view.hashCode())+" "+" view==";
+        return res;
+    }
 }

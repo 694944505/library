@@ -1,0 +1,41 @@
+[nodes_setup]
+172.30.195.28
+172.30.195.29
+172.30.195.30
+172.30.195.31
+172.30.195.32
+172.30.195.33
+172.30.195.34
+172.30.195.35
+172.30.195.36
+172.30.195.37
+172.30.195.38
+172.30.195.39
+172.30.195.40
+172.30.195.41
+172.30.195.42
+172.30.195.43
+172.30.195.44
+172.30.195.45
+
+[nodes]
+replica0 ansible_host=172.30.195.28 host_idx=0 extra_conf=hotstuff.gen-sec0.conf
+replica1 ansible_host=172.30.195.38 host_idx=1 extra_conf=hotstuff.gen-sec1.conf
+replica2 ansible_host=172.30.195.31 host_idx=2 extra_conf=hotstuff.gen-sec2.conf
+replica3 ansible_host=172.30.195.41 host_idx=3 extra_conf=hotstuff.gen-sec3.conf
+replica4 ansible_host=172.30.195.44 host_idx=4 extra_conf=hotstuff.gen-sec4.conf
+replica5 ansible_host=172.30.195.40 host_idx=5 extra_conf=hotstuff.gen-sec5.conf
+replica6 ansible_host=172.30.195.42 host_idx=6 extra_conf=hotstuff.gen-sec6.conf
+replica7 ansible_host=172.30.195.35 host_idx=7 extra_conf=hotstuff.gen-sec7.conf
+replica8 ansible_host=172.30.195.32 host_idx=8 extra_conf=hotstuff.gen-sec8.conf
+replica9 ansible_host=172.30.195.34 host_idx=9 extra_conf=hotstuff.gen-sec9.conf
+replica10 ansible_host=172.30.195.43 host_idx=10 extra_conf=hotstuff.gen-sec10.conf
+replica11 ansible_host=172.30.195.37 host_idx=11 extra_conf=hotstuff.gen-sec11.conf
+replica12 ansible_host=172.30.195.39 host_idx=12 extra_conf=hotstuff.gen-sec12.conf
+replica13 ansible_host=172.30.195.45 host_idx=13 extra_conf=hotstuff.gen-sec13.conf
+replica14 ansible_host=172.30.195.33 host_idx=14 extra_conf=hotstuff.gen-sec14.conf
+replica15 ansible_host=172.30.195.29 host_idx=15 extra_conf=hotstuff.gen-sec15.conf
+
+[clients]
+client0 ansible_host=172.30.195.36 host_idx=0 cid=0
+client1 ansible_host=172.30.195.30 host_idx=1 cid=1
