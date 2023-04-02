@@ -216,7 +216,7 @@ public final class ExecutionManager {
      * @return true in case the message can be executed, false otherwise
      */
     public final boolean checkLimits(ConsensusMessage msg) {
-        if(msg.getType() == MessageFactory.CHECK || msg.getType() == MessageFactory.CONFILICT) {
+        if(msg.getType() == MessageFactory.CHECK || msg.getType() == MessageFactory.PROOF) {
             return true;
         }
         outOfContextLock.lock();

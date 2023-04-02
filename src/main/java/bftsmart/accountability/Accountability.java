@@ -54,7 +54,7 @@ public class Accountability {
      * This method is called when a consensus instance is decided
      * @param cid consensus instance id
      * @param decision the decision of the consensus instance
-     * @return conflict set message if there is a conflict, null otherwise
+     * @return proof set message if there is a proof, null otherwise
      */
      
     public void addDecision(CertifiedDecision decision, Epoch epoch) {
@@ -101,11 +101,11 @@ public class Accountability {
     }
     private void checkConflict(CertifiedDecision decision, ConsensusMessage msg){
         if (test || Arrays.equals(msg.getParentValue(), getParentValue(decision))) {
-            ConsensusMessage conflictMessage = factory.createConflict(decision.getCID(), 0, decision.getDecision(),
+            ConsensusMessage proofMessage = factory.createProof(decision.getCID(), 0, decision.getDecision(),
                     decision.getReg());
-            conflictMessage.setProof(decision.getConsMessages());
-            conflictMessage.setLCset(LCMap.get(decision.getReg()));
-            communication.send(new int[]{msg.getSender()}, conflictMessage);
+            proofMessage.setProof(decision.getConsMessages());
+            proofMessage.setLCset(LCMap.get(decision.getReg()));
+            communication.send(new int[]{msg.getSender()}, proofMessage);
         } else {
             // send check message
             CertifiedDecision lastDecision = myDecisionMap.get(decision.getCID()-1);
@@ -164,7 +164,7 @@ public class Accountability {
     /*
      * This method is called when a check message is received
      * @param msg check message
-     * @return conflict set message if there is a conflict, null otherwise
+     * @return proof set message if there is a proof, null otherwise
      */
     public void addCheck(ConsensusMessage msg) {
         if (msg.fromClient()) {
@@ -231,9 +231,9 @@ public class Accountability {
     }
 
     /*
-     * get the decision which conflicts with the check message
+     * get the decision which proofs with the check message
      * @param msg check message
-     * @return conflict decision if there is a conflict, null otherwise
+     * @return proof decision if there is a proof, null otherwise
      */
      
     public CertifiedDecision getCheck(ConsensusMessage msg) {

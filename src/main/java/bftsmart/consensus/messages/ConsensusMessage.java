@@ -38,7 +38,7 @@ public class ConsensusMessage extends SystemMessage {
     private byte[] parentValue = null;
     private Object proof; // Proof used when message type is COLLECT
                               // Can be either a MAC vector or a signature
-    private Object LCset; // Leader change set used when message type is CONFLICT  
+    private Object LCset; // Leader change set used when message type is PROOF  
     private int reg; // consensus view number
     private boolean fromClient = false;
 
@@ -255,7 +255,7 @@ public class ConsensusMessage extends SystemMessage {
     }
     
     /**
-     * Returns the leader change set associated with a CONFLICT message
+     * Returns the leader change set associated with a PROOF message
      * @return The leader change set
      */
     public Object getLCset() {

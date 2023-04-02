@@ -188,9 +188,9 @@ public final class Acceptor {
 				checkReceived(epoch, msg);
 			}
 				break;
-			case MessageFactory.CONFILICT: {
-				type = "CONFLICT";
-				conflictReceived(epoch, msg);
+			case MessageFactory.PROOF: {
+				type = "PROOF";
+				proofReceived(epoch, msg);
 			}
 				break;
 		}
@@ -493,7 +493,7 @@ public final class Acceptor {
 	}
 
 	/*
-	 * called when a CONFLICT message is received
+	 * called when a PROOF message is received
 	 *
 	 * @param epoch Epoch of the receives message
 	 * 
@@ -501,7 +501,7 @@ public final class Acceptor {
 	 * 
 	 * @param value Value sent in the message
 	 */
-	private void conflictReceived(Epoch epoch, ConsensusMessage msg){
+	private void proofReceived(Epoch epoch, ConsensusMessage msg){
 		try{
 			int cid = epoch.getConsensus().getId();
 			

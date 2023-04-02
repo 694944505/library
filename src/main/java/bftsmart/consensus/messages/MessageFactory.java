@@ -25,7 +25,7 @@ public class MessageFactory{
     public static final int WRITE    = 44782;
     public static final int ACCEPT  = 44783;
     public static final int CHECK  = 44784;
-    public static final int CONFILICT  = 44785;
+    public static final int PROOF  = 44785;
 
     private int from; // Replica ID of the process which sent this message
 
@@ -92,14 +92,14 @@ public class MessageFactory{
     }
 
     /*
-     * Creates a CONFLICT message to be sent by this process
+     * Creates a PROOF message to be sent by this process
      * @param id Consensus's execution ID
      * @param epoch Epoch number
      * @param value Accepted value
      */
-    public ConsensusMessage createConflict(int id, int epoch, byte[] value, int reg) {
+    public ConsensusMessage createProof(int id, int epoch, byte[] value, int reg) {
             
-        return new ConsensusMessage(CONFILICT,id,epoch, from, value, null, reg);
+        return new ConsensusMessage(PROOF,id,epoch, from, value, null, reg);
     }
 }
 
