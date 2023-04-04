@@ -101,7 +101,7 @@ public class LCManager {
      */
     public int getNewLeader() {
         if(SVController.getGenerator() != null){
-            return SVController.getGenerator().getView(nextreg).getLeaderID();
+            return SVController.getGenerator().getNextView().getLeaderID(SVController.getStaticConf().getProcessId());
         }
         int[] proc = SVController.getCurrentViewProcesses();
         int minProc = proc[0];
@@ -141,12 +141,7 @@ public class LCManager {
 
     /*
      */
-    public boolean needToStartLC() {
-        if(SVController.getGenerator() != null){
-            return SVController.getGenerator().getView(lastreg + 1).getLeaderID() != currentLeader;
-        }
-        return false;
-    }
+    
     /**
      * This is meant to keep track of timed out requests in this replica
      *

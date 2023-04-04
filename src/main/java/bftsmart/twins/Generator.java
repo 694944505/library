@@ -2,7 +2,7 @@ package bftsmart.twins;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -12,13 +12,15 @@ public class Generator {
     private ArrayList<NodeID> allNodes;
     private ArrayList<NodeID> twins;
     private ArrayList<NodeID> nodes;
+    private HashMap<Integer, Integer> idMap = new HashMap<Integer, Integer>();
     private int[] indices;
     private int[] offsets;
     private ArrayList<View> leadersPartitions;
-    private ArrayList<ArrayList<HashSet<Integer>>> partitionScenarios;
+    private ArrayList<ArrayList<HashMap<Integer, NodeID>>> partitionScenarios;
     private Settings settings;
     private Logger logger;
     private final Object mut = new Object();
+    int lastIndex = 0;
    
     public Generator(Settings settings, Logger logger) {
         this.settings = settings;
@@ -38,11 +40,11 @@ public class Generator {
         partitionScenarios = genPartitionScenarios();
 
         for (int i = 0; i < partitionScenarios.size(); i++) {
-            for (int j = 0; j < twins.size(); j+=2) {
-                leadersPartitions.add(new View(twins.get(j).getReplicaID(), partitionScenarios.get(i)));
-            }
             for (int j = 0; j < nodes.size(); j++) {
-                leadersPartitions.add(new View(nodes.get(j).getReplicaID(), partitionScenarios.get(i)));
+                leadersPartitions.add(new View(nodes.get(j), partitionScenarios.get(i)));
+            }
+            for (int j = 0; j < twins.size(); j++) {
+                leadersPartitions.add(new View(twins.get(j), partitionScenarios.get(i)));
             }
 
         }
@@ -57,11 +59,25 @@ public class Generator {
         settings.setSeed(seed);
         
         Random r = new Random(seed);
-        Collections.shuffle(leadersPartitions);
+        //Collections.shuffle(leadersPartitions);
         for (int i = 0; i < offsets.length; i++) {
-            offsets[i] = r.nextInt(leadersPartitions.size());
+            offsets[i] = i;//r.nextInt(leadersPartitions.size());
+        }
+        
+    }
+    public void setQuik() {
+        int j = 0;
+        while(j<leadersPartitions.size()) {
+            if(leadersPartitions.get(j).isQuick()) {
+                break;
+            }
+            j++;
+        }
+        for (int i = 0; i < offsets.length; i++) {
+            offsets[i] = j-i;
         }
     }
+
 
     // NextScenario generates the next scenario.
     public View[] getNextScenario(){
@@ -94,36 +110,63 @@ public class Generator {
     }
     
     public View getView(int i) {
+        lastIndex = i;
         return leadersPartitions.get((i+offsets[i%leadersPartitions.size()])%leadersPartitions.size());
+    }
+    public View getView(){
+        return leadersPartitions.get((lastIndex+offsets[lastIndex%leadersPartitions.size()])%leadersPartitions.size());
+    }
+    public View getNextView(){
+
+        return leadersPartitions.get((lastIndex +1+offsets[(lastIndex+1)%leadersPartitions.size()])%leadersPartitions.size());
+    }
+    public boolean inSamePartition(int replica1, int replica2) {
+        View v = getView();
+        for (HashMap<Integer, NodeID> partition : v.getPartitions()) {
+            if (partition.containsKey(replica1) && partition.containsKey(replica2)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void assignNodeIDs() {
         int replicaID = 0;
-        int networkID = 0;
+        int NodeID = 0;
         int remainingTwins = settings.getNumTwins();
         // assign IDs to nodes
-        for (int i = 0; i < settings.getNumNodes(); i++) {
-            if (remainingTwins > 0) {
-                twins.add(new NodeID(replicaID, networkID));
-                networkID++;
-                twins.add(new NodeID(replicaID, networkID));
-                remainingTwins--;
-            } else {
-                nodes.add(new NodeID(replicaID, networkID));
-            }
-            networkID++;
+
+        for (int i = 0; i < settings.getNumNodes()-remainingTwins; i++) {
+            nodes.add(new NodeID(replicaID, NodeID));
+            idMap.put(NodeID, replicaID);
+            NodeID++;
             replicaID++;
         }
+        // assign IDs to twins
+        for (int i=0;i<remainingTwins;i++) {
+            twins.add(new NodeID(replicaID, NodeID));
+            idMap.put(NodeID, replicaID);
+            replicaID++;
+            NodeID++;
+        }
+        replicaID = settings.getNumNodes()-remainingTwins;
+        for (int i=0;i<remainingTwins;i++) {
+            twins.add(new NodeID(replicaID, NodeID));
+            idMap.put(NodeID, replicaID);
+            replicaID++;
+            NodeID++;
+        }
+        
         for(NodeID node: twins){
-            //logger.debug("Twin: " + node.toString());
+            logger.debug("Twin: " + node.toString());
         }
         for(NodeID node: nodes){
-            //logger.debug("Node: " + node.toString());
+            logger.debug("Node: " + node.toString());
         }
     }
 
-    public ArrayList<ArrayList<HashSet<Integer>>> genPartitionScenarios() {
-        ArrayList<ArrayList<HashSet<Integer>>> partitionScenarios = new ArrayList<ArrayList<HashSet<Integer>>>();
+    public ArrayList<ArrayList<HashMap<Integer, NodeID>>> genPartitionScenarios() {
+        ArrayList<ArrayList<HashMap<Integer, NodeID>>> partitionScenarios = new ArrayList<ArrayList<HashMap<Integer, NodeID>>>();
         int n = allNodes.size();
         ArrayList<ArrayList<int []>> twinAssignments = new ArrayList<ArrayList<int []>>();
         // generate all ways to assign the twins to k partitions
@@ -146,17 +189,17 @@ public class Generator {
                     j++;
                     continue;
                 }
-                ArrayList<HashSet<Integer>> partitions = new ArrayList<HashSet<Integer>>();
+                ArrayList<HashMap<Integer, NodeID>> partitions = new ArrayList<HashMap<Integer, NodeID>>();
                 for(int k = 0; k < sizes.get(i).length; k++) {
                     if (sizes.get(i)[k] > 0) {
-                        partitions.add(new HashSet<Integer>());
+                        partitions.add(new HashMap<Integer, NodeID>());
                     }
                 }
                 if (twinAssignments.size() > 0) {
                     int twin = 0;
                     for(int k = 0; k < twinAssignments.get(j).size(); k++) {
                         for(int t = 0; t < twinAssignments.get(j).get(k).length; t++) {
-                            partitions.get(twinAssignments.get(j).get(k)[t]).add(twins.get(twin).getNetworkID());
+                            partitions.get(twinAssignments.get(j).get(k)[t]).put(twins.get(twin).getNetworkID(), twins.get(twin));
                             twin++;
                         }
                     }
@@ -165,7 +208,7 @@ public class Generator {
                 for(int k = 0; k < partitions.size(); k++) {
                     for( ;sizes.get(i)[k] - partitions.get(k).size()>0;) {
 
-                        partitions.get(k).add(nodes.get(node).getNetworkID());
+                        partitions.get(k).put(nodes.get(node).getNetworkID(), nodes.get(node));
                         node++;
                     }
                 }
@@ -270,7 +313,7 @@ public class Generator {
         return true;
     }
 
-    public ArrayList<ArrayList<HashSet<Integer>>> getPartitionScenarios(){
+    public ArrayList<ArrayList<HashMap<Integer, NodeID>>> getPartitionScenarios(){
         return partitionScenarios;
     }
 
@@ -282,5 +325,14 @@ public class Generator {
     }
     public int getViewSize(){
         return settings.getViews();
+    }
+    public int getNumTwins(){
+        return settings.getNumTwins();
+    }
+    public int[] getSamePartitionProcesses(int id) {
+        return this.getView().getSamePartitionProcesses(id);
+    }
+    public int getNodeID(int id) {
+        return idMap.get(id);
     }
 }

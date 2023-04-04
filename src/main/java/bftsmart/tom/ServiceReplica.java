@@ -551,4 +551,9 @@ public class ServiceReplica {
     public TOMLayer getTOMLayer() {
         return tomLayer;
     }
+
+    public void initLeader() {
+        tomLayer.execManager.setNewLeader(SVController.getGenerator().getView(0).getLeaderID(SVController.getStaticConf().getProcessId()));
+        tomLayer.imAmTheLeader();
+    }
 }

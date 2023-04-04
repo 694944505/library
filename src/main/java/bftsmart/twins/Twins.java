@@ -2,6 +2,7 @@ package bftsmart.twins;
 
 
 import bftsmart.demo.microbenchmarks.ThroughputLatencyClient;
+import bftsmart.reconfiguration.util.Configuration;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.CommandsInfo;
@@ -97,7 +98,7 @@ public final class Twins extends DefaultRecoverable{
         } catch(Exception e){
 
         }
-        
+        replica.initLeader();
         replica.getTOMLayer().randomPropose();
     }
 
@@ -110,7 +111,7 @@ public final class Twins extends DefaultRecoverable{
         } catch(Exception e) {
             e.printStackTrace();
         }
-        System.out.println("delivering batch");
+        //System.out.println("delivering batch");
         replica.getTOMLayer().randomPropose();
         batchSize.store(commands.length);
                 
@@ -239,18 +240,18 @@ public final class Twins extends DefaultRecoverable{
         int partitionsNumber = Integer.parseInt(args[2]);
         int viewsNumber = Integer.parseInt(args[3]);
         boolean context = Boolean.parseBoolean(args[4]);*/
-        int replicaNumber = 3;
-        int twinsNumber = 1;
-        int partitionsNumber = 1;
-        int viewsNumber = 1;
+        int replicaNumber = 4;
+        int twinsNumber = 2;
+        int partitionsNumber = 2;
+        int viewsNumber = 12;
         boolean context = true;
 
-        
+        Configuration.configFileName = "twins.config";
+        Configuration.hostsFileName = "twinshosts.config";
         Generator g = new Generator(new Settings(replicaNumber, twinsNumber, partitionsNumber, viewsNumber), LoggerFactory.getLogger("twins_test"));
         g.Shuffle(0);
-        for(int i = 0; i<g.getViewSize(); i++){
-            System.out.println(g.getView(i).toString());
-        }
+        g.setQuik();
+        
         int s = 0;
         for (NodeID node: g.getNodes()){
             new Thread(() -> {

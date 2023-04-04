@@ -65,7 +65,8 @@ public class Configuration {
 
 	protected String configHome = "";
 
-	protected static String hostsFileName = "";
+	public static String hostsFileName = "";
+	public static String configFileName = "system.config";
 
 	protected boolean defaultKeys = false;
 
@@ -322,7 +323,7 @@ public class Configuration {
 				configHome = "config";
 			}
 			String sep = System.getProperty("file.separator");
-			String path = configHome + sep + "system.config";
+			String path = configHome + sep + configFileName;
 			;
 			FileReader fr = new FileReader(path);
 			BufferedReader rd = new BufferedReader(fr);

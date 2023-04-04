@@ -35,14 +35,18 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import bftsmart.communication.SystemMessage;
+import bftsmart.consensus.messages.ConsensusMessage;
+import bftsmart.consensus.messages.MessageFactory;
 import bftsmart.reconfiguration.ServerViewController;
 import bftsmart.tom.ServiceReplica;
+import bftsmart.tom.leaderchange.LCMessage;
 import bftsmart.tom.util.TOMUtil;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Vector;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -262,6 +266,21 @@ public class ServersCommunicationLayer extends Thread {
 
 
     public final void send(int[] targets, SystemMessage sm, boolean useMAC) {
+        if (controller.getGenerator() != null) {
+  
+            Vector<Integer> tmpTargets = new Vector<Integer>();
+            if(sm instanceof ConsensusMessage || sm instanceof LCMessage) {
+                if (((ConsensusMessage) (sm)).getType() != MessageFactory.PROOF && ((ConsensusMessage) (sm)).getType() != MessageFactory.CHECK) {
+                    for(int sender: targets) {
+                        if (controller.getGenerator().inSamePartition(sender, sm.getSender())) {
+                            tmpTargets.add(sender);
+                        }
+                    }
+                    targets = tmpTargets.stream().mapToInt(Integer::intValue).toArray();
+                } 
+                
+            }
+        }
         ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
         try {
             new ObjectOutputStream(bOut).writeObject(sm);

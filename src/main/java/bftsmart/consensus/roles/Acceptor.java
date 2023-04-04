@@ -81,6 +81,8 @@ public final class Acceptor {
 
 	private Accountability accountability;
 
+	private String twinsLog = "\n";
+
 	/**
 	 * Creates a new instance of Acceptor.
 	 * 
@@ -165,36 +167,57 @@ public final class Acceptor {
 
 		consensus.lock.lock();
 		Epoch epoch = consensus.getEpoch(msg.getEpoch(), controller);
-		String type="";
+		if (controller.getGenerator() != null) {
+			String type="";
+			switch (msg.getType()) {
+			
+				case MessageFactory.PROPOSE: {
+					type = "PROPOSE";
+				}
+					break;
+				case MessageFactory.WRITE: {
+					type = "WRITE";
+				}
+					break;
+				case MessageFactory.ACCEPT: {
+					type = "ACCEPT";
+				}
+					break;
+				case MessageFactory.CHECK: {
+					type = "CHECK";
+				}
+					break;
+				case MessageFactory.PROOF: {
+					type = "PROOF";
+				}
+					break;
+			}
+			twinsLog +=controller.getStaticConf().getProcessId()+" received " + type + " from " + msg.getSender() + " for consensus " + msg.getNumber() +"\n";
+		}
 		switch (msg.getType()) {
 			
 			case MessageFactory.PROPOSE: {
-				type = "PROPOSE";
 				proposeReceived(epoch, msg);
 			}
 				break;
 			case MessageFactory.WRITE: {
-				type = "WRITE";
 				writeReceived(epoch, msg.getSender(), msg.getValue());
 			}
 				break;
 			case MessageFactory.ACCEPT: {
-				type = "ACCEPT";
 				acceptReceived(epoch, msg);
 			}
 				break;
 			case MessageFactory.CHECK: {
-				type = "CHECK";
 				checkReceived(epoch, msg);
 			}
 				break;
 			case MessageFactory.PROOF: {
-				type = "PROOF";
 				proofReceived(epoch, msg);
 			}
 				break;
 		}
-		//System.out.println("received " + type + " from " + msg.getSender() + " for consensus " + msg.getNumber());
+
 		consensus.lock.unlock();
 	}
 
@@ -513,14 +536,21 @@ public final class Acceptor {
 					Set<Integer> suspects= new HashSet<>();
 					List<Integer> guilty = new LinkedList<>();
 					for(ConsensusMessage cm : dec.getConsMessages()){
-						suspects.add(cm.getSender());
+						suspects.add(controller.getNodeID(cm.getSender()));
 					}
 					for(ConsensusMessage cm : decLocal.getConsMessages()){
-						if(suspects.contains(cm.getSender())){
-							guilty.add(cm.getSender());
+						if(suspects.contains(controller.getNodeID(cm.getSender()))){
+							guilty.add(controller.getNodeID(cm.getSender()));
+							
 						}
 					}
-					logger.error("Guilty nodes: " + guilty + "at cid: " + cid);
+					if (controller.getGenerator() != null) {
+						twinsLog += "\nmalicious node ReplicaID: " + guilty.toString() + "\n";
+						twinsLog += controller.getGenerator().getView().toString() + "\n";
+					}
+					
+					logger.error(twinsLog);
+					System.exit(0);
 				}else{
 					CertifiedDecision firstDec;
 					HashSet<SignedObject> LCSet;
@@ -535,14 +565,20 @@ public final class Acceptor {
 					Set<Integer> suspects= new HashSet<>();
 					List<Integer> guilty = new LinkedList<>();
 					for(CollectData d : LCSetSenders){
-						suspects.add(d.getPid());
+						suspects.add(controller.getNodeID(d.getPid()));
 					}
 					for(ConsensusMessage cm : firstDec.getConsMessages()){
-						if(suspects.contains(cm.getSender())){
-							guilty.add(cm.getSender());
+						if(suspects.contains(controller.getNodeID(cm.getSender()))){
+							guilty.add(controller.getNodeID(cm.getSender()));
 						}
 					}
-					System.out.println("Guilty: " + guilty);
+					if (controller.getGenerator() != null) {
+						twinsLog += "\nmalicious node ReplicaID: " + guilty.toString() + "\n";
+						twinsLog += controller.getGenerator().getView().toString() + "\n";
+					}
+					
+					logger.error(twinsLog);
+					System.exit(0);
 				}
 
 				// TODO

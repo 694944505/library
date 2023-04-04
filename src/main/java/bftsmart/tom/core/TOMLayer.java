@@ -484,7 +484,13 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 int execId = getLastExec() + 1;
                 if(this.controller.getGenerator() != null) {
                    // System.out.println("leader is " + this.controller.getGenerator().getView(execId).getLeaderID());
-                    if(this.controller.getGenerator().getView(execId).getLeaderID() != execManager.getCurrentLeader()) continue;
+                    if(this.controller.getGenerator().getView(execId + syncher.getLCManager().getLastReg()).getLeaderID(this.controller.getStaticConf().getProcessId()) != execManager.getCurrentLeader()) {
+                        
+                        //System.out.println("not leader");
+                        continue;
+                    }
+                    //System.out.println("is leader"+(execId + syncher.getLCManager().getLastReg()));
+                    if(execId + syncher.getLCManager().getLastReg()  == this.controller.getGenerator().getViewSize() -1) System.exit(0);
                 }
 
                 
@@ -722,7 +728,7 @@ public final class TOMLayer extends Thread implements RequestReceiver {
                 buffer.putInt(signature.length);
                 buffer.put(signature);
                 request = buffer.array();
-                this.serviceProxy.invokeAsynchRequest(request, null, TOMMessageType.ORDERED_REQUEST);
+                this.serviceProxy.invokeAsynchRequest(request, controller.getSamePartitionProcesses(), null, TOMMessageType.ORDERED_REQUEST);
             } catch (Exception e) {
                 e.printStackTrace();
             }

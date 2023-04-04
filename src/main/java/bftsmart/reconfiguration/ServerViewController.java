@@ -320,6 +320,24 @@ public class ServerViewController extends ViewController {
     
 
     public int getQuorum() {
+        if (g != null) {
+            this.quorumBFT = (int) Math.ceil((this.currentView.getN() - g.getNumTwins() + this.currentView.getF()) / 2) ;
+        }
         return getStaticConf().isBFT() ? quorumBFT : quorumCFT;
+    }
+
+    public int[] getSamePartitionProcesses() {
+        return g.getSamePartitionProcesses(getStaticConf().getProcessId());
+    }
+
+    public int getNodeID(int nid) {
+        if (g == null) {
+            return nid;
+        }
+        return g.getNodeID(nid);
+    }
+    @Override
+    public int getCurrentViewPos(int id) {
+        return getCurrentView().getPos(getNodeID(id));
     }
 }

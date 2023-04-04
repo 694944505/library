@@ -65,10 +65,14 @@ public class ViewManager {
         try {
             String path = "";
             String sep = System.getProperty("file.separator");
+            String fileName = "system.config";
+            if (controller.getGenerator() != null) {
+                fileName = "twins.config";
+            }
             if (configHome == null || configHome.equals("")) {
-                path = "config" + sep + "system.config";
+                path = "config" + sep + fileName;
             } else {
-                path = configHome + sep + "system.config";
+                path = configHome + sep + fileName;
             }
             FileReader fr = new FileReader(path);
             BufferedReader rd = new BufferedReader(fr);

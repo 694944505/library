@@ -260,7 +260,7 @@ public class Synchronizer {
 
             lcManager.addCollect(regency, signedCollect);
 
-            int bizantineQuorum = (controller.getCurrentViewN() + controller.getCurrentViewF()) / 2;
+            int bizantineQuorum = controller.getQuorum();
             int cftQuorum = (controller.getCurrentViewN()) / 2;
 
             // Did I already got messages from a Byzantine/Crash quorum,

@@ -20,6 +20,6 @@ public class NodeID {
         return networkID;
     }
     public String toString() {
-        return "ReplicaID: " + replicaID + " NetworkID: " + networkID;
+        return "(ReplicaID: " + replicaID + " NetworkID: " + networkID+")";
     }
 }
