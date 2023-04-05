@@ -825,7 +825,7 @@ public class LCManager {
         for (ConsensusMessage consMsg : ConsensusMessages) {
             
             ConsensusMessage cm = new ConsensusMessage(consMsg.getType(),consMsg.getNumber(),
-                    consMsg.getEpoch(), consMsg.getSender(), consMsg.getValue(), consMsg.getParentValue(), consMsg.getReg());
+                    consMsg.getEpoch(), consMsg.getSender(), consMsg.getValue(), consMsg.getReg());
             cm.setLCset(consMsg.getLCset());
 
             ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);

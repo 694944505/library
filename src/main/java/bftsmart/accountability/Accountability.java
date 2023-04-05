@@ -87,9 +87,8 @@ public class Accountability {
     }
     
     private void sendCheck(int[] targets, CertifiedDecision decision) {
-        byte [] praentValue = getParentValue(decision);
         proofExecutor.submit(() -> {
-            ConsensusMessage check = factory.createCheck(decision.getCID(), 0, decision.getDecision(), praentValue, decision.getReg());
+            ConsensusMessage check = factory.createCheck(decision.getCID(), 0, decision.getDecision(), decision.getReg());
             // Create a cryptographic proof for this CHECK message
             logger.debug(
                     "Creating cryptographic proof for the correct CHECK message from consensus " + decision.getCID());
@@ -100,17 +99,13 @@ public class Accountability {
         });
     }
     private void checkConflict(CertifiedDecision decision, ConsensusMessage msg){
-        if (test || Arrays.equals(msg.getParentValue(), getParentValue(decision))) {
+        if (test || !Arrays.equals(msg.getValue(), decision.getDecision())) {
             ConsensusMessage proofMessage = factory.createProof(decision.getCID(), 0, decision.getDecision(),
                     decision.getReg());
             proofMessage.setProof(decision.getConsMessages());
             proofMessage.setLCset(LCMap.get(decision.getReg()));
             communication.send(new int[]{msg.getSender()}, proofMessage);
-        } else {
-            // send check message
-            CertifiedDecision lastDecision = myDecisionMap.get(decision.getCID()-1);
-            sendCheck(new int[]{msg.getSender()}, lastDecision);
-        }
+        } 
     }
     private byte[] getParentValue(CertifiedDecision decision) {
         if (decision.getCID() == 0) {
@@ -129,7 +124,6 @@ public class Accountability {
 			ObjectOutputStream obj = new ObjectOutputStream(bOut);
 			obj.writeInt(cm.getNumber());
             obj.write(cm.getValue());
-            obj.write(cm.getParentValue());
 			obj.flush();
 			bOut.flush();
 		} catch (IOException ex) {
@@ -149,7 +143,6 @@ public class Accountability {
             ObjectOutputStream obj = new ObjectOutputStream(bOut);
 			obj.writeInt(msg.getNumber());
             obj.write(msg.getValue());
-            obj.write(msg.getParentValue());
 			obj.flush();
 			bOut.flush();
         } catch (IOException ex) {

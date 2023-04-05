@@ -35,7 +35,6 @@ public class ConsensusMessage extends SystemMessage {
     private int epoch; // Epoch to which this message belongs to
     private int paxosType; // Message type
     private byte[] value = null; // Value used when message type is PROPOSE
-    private byte[] parentValue = null;
     private Object proof; // Proof used when message type is COLLECT
                               // Can be either a MAC vector or a signature
     private Object LCset; // Leader change set used when message type is PROOF  
@@ -77,7 +76,7 @@ public class ConsensusMessage extends SystemMessage {
      * @param parentValue  parent value if it is a PROPOSE message
      * @param reg consensus view number
      */
-    public ConsensusMessage(int paxosType, int id,int epoch,int from, byte[] value, byte[] parentValue, int reg){
+    public ConsensusMessage(int paxosType, int id,int epoch,int from, byte[] value, int reg){
 
         super(from);
 
@@ -85,7 +84,6 @@ public class ConsensusMessage extends SystemMessage {
         this.number = id;
         this.epoch = epoch;
         this.value = value;
-        this.parentValue = parentValue;
         //this.macVector = proof;
         this.reg=reg;
     }
@@ -125,16 +123,7 @@ public class ConsensusMessage extends SystemMessage {
           
 
         }
-        if(parentValue == null) {
-
-            out.writeInt(-1);
-
-        } else {
-
-            out.writeInt(parentValue.length);
-            out.write(parentValue);
-
-        }
+        
 
         if(this.proof != null) {
 
@@ -183,18 +172,7 @@ public class ConsensusMessage extends SystemMessage {
             
 
         }
-        toRead = in.readInt();
-        if(toRead != -1) {
-
-            parentValue = new byte[toRead];
-
-            do{
-
-                toRead -= in.read(parentValue, parentValue.length-toRead, toRead);
-
-            } while(toRead > 0);
-
-        }
+        
 
         boolean asProof = in.readBoolean();
         if (asProof) {
@@ -228,11 +206,7 @@ public class ConsensusMessage extends SystemMessage {
         return value;
 
     }
-    public byte[] getParentValue() {
-
-        return parentValue;
-
-    }
+    
 
     public void setProof(Object proof) {
         
@@ -322,7 +296,7 @@ public class ConsensusMessage extends SystemMessage {
 
          ConsensusMessage msg = (ConsensusMessage) o;
 
-         return msg.sender == sender && Arrays.equals(msg.value, value) && Arrays.equals(msg.parentValue, parentValue);
+         return msg.sender == sender && Arrays.equals(msg.value, value);
    }
 
    @Override
@@ -331,7 +305,6 @@ public class ConsensusMessage extends SystemMessage {
             // if deriving: appendSuper(super.hashCode()).
             append(sender).
             append(value).
-            append(parentValue).
             toHashCode();
    }
 

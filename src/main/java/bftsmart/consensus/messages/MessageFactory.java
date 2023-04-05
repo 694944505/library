@@ -75,7 +75,7 @@ public class MessageFactory{
      */
     public ConsensusMessage createAccept(int id, int epoch, byte[] value, int reg) {
 
-        return new ConsensusMessage(ACCEPT,id,epoch, from, value,null, reg);
+        return new ConsensusMessage(ACCEPT,id,epoch, from, value, reg);
 
     }
 
@@ -85,9 +85,9 @@ public class MessageFactory{
      * @param epoch Epoch number
      * @param value Accepted value
      */
-    public ConsensusMessage createCheck(int id, int epoch, byte[] value, byte[] parentValue, int reg) {
+    public ConsensusMessage createCheck(int id, int epoch, byte[] value, int reg) {
             
-        return new ConsensusMessage(CHECK,id,epoch, from, value, parentValue, reg);
+        return new ConsensusMessage(CHECK,id,epoch, from, value, reg);
 
     }
 
@@ -99,7 +99,7 @@ public class MessageFactory{
      */
     public ConsensusMessage createProof(int id, int epoch, byte[] value, int reg) {
             
-        return new ConsensusMessage(PROOF,id,epoch, from, value, null, reg);
+        return new ConsensusMessage(PROOF,id,epoch, from, value, reg);
     }
 }
 
