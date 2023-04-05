@@ -17,6 +17,8 @@ import java.security.SignedObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +34,8 @@ public class Accountability {
     // <cid, proof>
     private final HashMap<Integer, HashSet<ConsensusMessage>> otherDecisionMap = new HashMap<>(); 
     private final HashMap<Integer, HashSet<SignedObject>> LCMap =new HashMap<>();
+    private final HashMap<Integer, List<ConsensusMessage>> conflictMap = new HashMap<>();
+    private final HashMap<Integer, List<ConsensusMessage>> proofMap = new HashMap<>();
     private final Lock checkLock = new ReentrantLock();
 
     private final MessageFactory factory;
@@ -48,6 +52,10 @@ public class Accountability {
         this.controller = controller;
         this.proofExecutor = proofExecutor;
         this.privKey = controller.getStaticConf().getPrivateKey();
+        for (int id : controller.getCurrentViewProcesses()) {
+            proofMap.put(id, new ArrayList<>());
+            conflictMap.put(id, new ArrayList<>());
+        }
     }
 
     /*
@@ -81,12 +89,13 @@ public class Accountability {
         
         // send check message
         detectFrom = detecTo;
-        detecTo = controller.getStaticConf().getFaultDetectServerBound(decision.getCID());
+        detecTo = controller.getStaticConf().getFaultDetectServerBound(decision.getCID()+1);
         sendCheck(this.controller.getCurrentViewCheckers(detectFrom, detecTo), decision);
         
     }
     
     private void sendCheck(int[] targets, CertifiedDecision decision) {
+        System.out.println(controller.getStaticConf().getProcessId()+"send chekc to " + Arrays.toString(targets) + " " + decision.getCID() );
         proofExecutor.submit(() -> {
             ConsensusMessage check = factory.createCheck(decision.getCID(), 0, decision.getDecision(), decision.getReg());
             // Create a cryptographic proof for this CHECK message
@@ -100,11 +109,14 @@ public class Accountability {
     }
     private void checkConflict(CertifiedDecision decision, ConsensusMessage msg){
         if (test || !Arrays.equals(msg.getValue(), decision.getDecision())) {
-            ConsensusMessage proofMessage = factory.createProof(decision.getCID(), 0, decision.getDecision(),
+            conflictMap.get(msg.getSender()).add(msg);
+            if (conflictMap.get(msg.getSender()).size() <= proofMap.get(msg.getSender()).size() + 1) {
+                ConsensusMessage proofMessage = factory.createProof(decision.getCID(), 0, decision.getDecision(),
                     decision.getReg());
-            proofMessage.setProof(decision.getConsMessages());
-            proofMessage.setLCset(LCMap.get(decision.getReg()));
-            communication.send(new int[]{msg.getSender()}, proofMessage);
+                proofMessage.setProof(decision.getConsMessages());
+                proofMessage.setLCset(LCMap.get(decision.getReg()));
+                communication.send(new int[]{msg.getSender()}, proofMessage);
+            }
         } 
     }
     private byte[] getParentValue(CertifiedDecision decision) {
@@ -265,6 +277,10 @@ public class Accountability {
         } finally {
             checkLock.unlock();
         }
+    }
+
+    public void addProof(ConsensusMessage msg) {
+        proofMap.get(msg.getSender()).add(msg);
     }
 
 }

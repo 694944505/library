@@ -532,6 +532,7 @@ public final class Acceptor {
 			CertifiedDecision decLocal = accountability.getCheck(msg);
 
 			if(tomLayer.getSynchronizer().getLCManager().hasValidProof(dec, false)){
+				accountability.addProof(msg);
 				if(decLocal.getReg()==dec.getReg()){
 					Set<Integer> suspects= new HashSet<>();
 					List<Integer> guilty = new LinkedList<>();
