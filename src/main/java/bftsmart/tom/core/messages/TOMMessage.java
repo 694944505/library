@@ -23,8 +23,12 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Set;
 
 import bftsmart.communication.SystemMessage;
+import bftsmart.consensus.messages.ConsensusMessage;
 import bftsmart.tom.util.DebugInfo;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +50,8 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 
 	private byte[] content = null; // Content of the message
 	private byte[] serverResult = null; // Result of the execution of the request in the server
+
+	private Set<ConsensusMessage>  consMsgs;
 	private int serverCid = -1; // consensus id of the request in the server
 
 	//the fields bellow are not serialized!!!
@@ -249,6 +255,23 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 			out.writeInt(serverResult.length);
 			out.write(serverResult);
 		}
+
+		if (consMsgs == null) {
+			out.writeInt(-1);
+		} else {
+			ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
+			try {
+				ObjectOutputStream obj = new ObjectOutputStream(bOut);
+				obj.writeObject(consMsgs);
+				obj.flush();
+				bOut.flush();
+				byte[] data = bOut.toByteArray();
+				out.writeInt(data.length);
+				out.write(data);
+			} catch (IOException ex) {
+				
+			}
+		}
 	}
 
 	public void rExternal(DataInput in) throws IOException, ClassNotFoundException {
@@ -269,6 +292,14 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 		if (toRead != -1) {
 			serverResult = new byte[toRead];
 			in.readFully(serverResult);
+		}
+		toRead = in.readInt();
+		if (toRead != -1) {
+			byte[] data = new byte[toRead];
+			in.readFully(data);
+			ByteArrayInputStream bIn = new ByteArrayInputStream(data);
+			ObjectInputStream obj = new ObjectInputStream(bIn);
+			consMsgs = (Set<ConsensusMessage>)obj.readObject();
 		}
 
 		buildId();
@@ -415,5 +446,11 @@ public class TOMMessage extends SystemMessage implements Externalizable, Compara
 	}
 	public void setServerResult(byte[] serverResult) {
 		this.serverResult = serverResult;
+	}
+	public Set<ConsensusMessage> getConsMsgs() {
+		return consMsgs;
+	}
+	public void setConsMsgs(Set<ConsensusMessage> consMsgs) {
+		this.consMsgs = consMsgs;
 	}
 }

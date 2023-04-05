@@ -76,6 +76,7 @@ public class TOMConfiguration extends Configuration {
     private boolean accountabilityEnabled;
     private double faultDetectServerNum;
     private boolean forensicsEnabled;
+    private boolean forensicsWithProof;
     /** Creates a new instance of TOMConfiguration */
     public TOMConfiguration(int processId, KeyLoader loader) {
         super(processId, loader);
@@ -456,6 +457,16 @@ public class TOMConfiguration extends Configuration {
                     accountabilityEnabled = true;
                 }
             }
+            s = (String) configs.remove("system.forensicsWithProof");
+            if (s == null) {
+                forensicsWithProof = false;
+            } else {
+                forensicsWithProof = Boolean.parseBoolean(s);
+                if (forensicsWithProof) {
+                    accountabilityEnabled = true;
+                    forensicsEnabled = true;
+                }
+            }
 
         } catch (Exception e) {
             logger.error("Could not parse system configuration file",e);
@@ -672,6 +683,9 @@ public class TOMConfiguration extends Configuration {
 
     public boolean forensicsEnabled() {
         return forensicsEnabled;
+    }
+    public boolean forensicsWithProof() {
+        return forensicsWithProof;
     }
     public int getFaultDetectServerBound(int cid) {
         return (int) (Math.floor((cid * faultDetectServerNum)));

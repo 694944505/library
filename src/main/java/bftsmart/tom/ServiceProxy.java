@@ -430,18 +430,21 @@ public class ServiceProxy extends TOMSender {
 									canReceiveLock.unlock();
 									return;
 								}
-								if (test) {
+								
+								if (test &&(!getViewManager().getStaticConf().forensicsWithProof() || ServiceProxy.hasValidProof(reply.getConsMsgs(), getViewManager()))) {
 									TOMMessage sm = new TOMMessage(reply.getSender(),getSession(), reqId, operationId, null,
 										getViewManager().getCurrentViewId(), TOMMessageType.CHECK_CONFLICT);	
 									sm.setServerCid(replies[i].getServerCid());	
 									sm.setServerResult(replies[i].getServerResult());
+									sm.setConsMsgs(replies[i].getConsMsgs());
 									TOMulticast(sm);
 								}
-							} else if (getViewManager().getStaticConf().forensicsEnabled()){
+							} else if (getViewManager().getStaticConf().forensicsEnabled() && ((!getViewManager().getStaticConf().forensicsWithProof() || ServiceProxy.hasValidProof(reply.getConsMsgs(), getViewManager())))){
 								TOMMessage sm = new TOMMessage(reply.getSender(),getSession(), reqId, operationId, null,
 									getViewManager().getCurrentViewId(), TOMMessageType.CHECK_CONFLICT);
 								sm.setServerCid(replies[i].getServerCid());	
 								sm.setServerResult(replies[i].getServerResult());
+								sm.setConsMsgs(replies[i].getConsMsgs());
 								TOMulticast(sm);
 							}	
 							
@@ -480,6 +483,55 @@ public class ServiceProxy extends TOMSender {
 			canReceiveLock.unlock();
 		}
 	}
+	static public boolean hasValidProof(Set<ConsensusMessage> ConsensusMessages, ViewController controller) {
+        
+        if (ConsensusMessages == null) return true;
+        PublicKey pubKey = null;
+		int countValid = 0;
+		int certificateCurrentView = (2*controller.getCurrentViewF()) + 1;
+        int certificateLastView = -1;
+        if (controller.getLastView() != null) certificateLastView = (2*controller.getLastView().getF()) + 1;
+        for (ConsensusMessage consMsg : ConsensusMessages) {
+            
+            ConsensusMessage cm = new ConsensusMessage(consMsg.getType(),consMsg.getNumber(),
+                    consMsg.getEpoch(), consMsg.getSender(), consMsg.getValue(), consMsg.getReg());
+            cm.setLCset(consMsg.getLCset());
+
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream(248);
+            try {
+                new ObjectOutputStream(bOut).writeObject(cm);
+            } catch (IOException ex) {
+                System.out.println("Could not serialize message" +ex);
+            }
+
+            byte[] data = bOut.toByteArray();
+
+            if (consMsg.getProof() instanceof byte[]) { // certificate is made of signatures
+                
+                
+                pubKey = controller.getStaticConf().getPublicKey(consMsg.getSender());
+                   
+                byte[] signature = (byte[]) consMsg.getProof();
+                if (TOMUtil.verifySignature(pubKey, data, signature) ) {
+                    countValid++;
+                } else {
+                    System.out.println("Invalid signature in message from " + consMsg.getSender());
+                }
+   
+            } else {
+                System.out.println("Proof message is not an instance of byte[].");
+            }
+        }
+        
+        // If proofs were made of signatures, use a certificate correspondent to last view
+        // otherwise, use certificate for the current view
+        // To understand why this is important, check the comments in Acceptor.computeWrite()
+                
+        
+        //return countValid >= certificateCurrentView;
+        boolean ret = countValid >=  (certificateLastView != -1 && pubKey != null ? certificateLastView : certificateCurrentView);
+        return ret;
+    }
 
         /**
          * Retrieves the required quorum size for the amount of replies

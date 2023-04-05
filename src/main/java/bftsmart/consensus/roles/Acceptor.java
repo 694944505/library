@@ -548,10 +548,13 @@ public final class Acceptor {
 					if (controller.getGenerator() != null) {
 						twinsLog += "\nmalicious node ReplicaID: " + guilty.toString() + "\n";
 						twinsLog += controller.getGenerator().getView().toString() + "\n";
+						logger.error(twinsLog);
+						System.exit(0);
+					} else {
+						logger.error("malicious node ReplicaID: " + guilty.toString() + "\n");
 					}
 					
-					logger.error(twinsLog);
-					System.exit(0);
+					
 				}else{
 					CertifiedDecision firstDec;
 					HashSet<SignedObject> LCSet;
@@ -576,10 +579,12 @@ public final class Acceptor {
 					if (controller.getGenerator() != null) {
 						twinsLog += "\nmalicious node ReplicaID: " + guilty.toString() + "\n";
 						twinsLog += controller.getGenerator().getView().toString() + "\n";
+						logger.error(twinsLog);
+						System.exit(0);
+					} else {
+						logger.error("malicious node ReplicaID: " + guilty.toString() + "\n");
 					}
 					
-					logger.error(twinsLog);
-					System.exit(0);
 				}
 
 				// TODO

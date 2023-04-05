@@ -443,6 +443,9 @@ public class ServiceReplica {
                         for(ConsensusMessage cm : msgContexts[i].getProof()) {
                             replies[i].reply.setServerCid(cm.getNumber());
                             replies[i].reply.setServerResult(cm.getValue());
+                            if(SVController.getStaticConf().forensicsWithProof()) {
+                                replies[i].reply.setConsMsgs(msgContexts[i].getProof());
+                            }
                             break;
                         }
                     }
