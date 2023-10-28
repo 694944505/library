@@ -11,7 +11,7 @@
   block:
     - shell: killall -9 java || true
       ignore_errors: true
-    - shell: rm -fr /home/root/library/build/install/library/config/currentView
+    - shell: rm -fr /root/library_ori/library/build/install/library/config/currentView
       ignore_errors: true
     - name: create testbed dirs
       block:

@@ -13,7 +13,7 @@ for i in "${rep[@]}"; do
     echo "starting client $i"
     #valgrind --leak-check=full ./examples/hotstuff-app --conf hotstuff-sec${i}.conf > log${i} 2>&1 &
     #gdb -ex r -ex bt -ex q --args ./examples/hotstuff-app --conf hotstuff-sec${i}.conf > log${i} 2>&1 &
-    ./smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient  ${i} 20 3000 0 0 false false nosig > logcl${i} 2>&1 &
+    ./smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyClient  ${i} 20 300 0 0 false false nosig > logcl${i} 2>&1 &
                                                                     #id threads ops reqsize interval
 done
 wait

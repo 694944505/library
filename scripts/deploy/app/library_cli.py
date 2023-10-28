@@ -54,7 +54,7 @@ def run_module():
     try:
         host_idx = int(module.params['host_idx'])
         host_idx = str(host_idx*1000)
-        num_ops = '20000'
+        num_ops = '2000'
         threads = ' 250 '
         cmd = 'cd '+ module.params['bin'] + ' && java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.microbenchmarks.ThroughputLatencyClient  '+host_idx+threads+num_ops+' 0 0 false false nosig'
 

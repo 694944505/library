@@ -18,7 +18,7 @@ for i in "${rep[@]}"; do
     echo "starting replica $i"
     #valgrind --leak-check=full ./examples/hotstuff-app --conf hotstuff-sec${i}.conf > log${i} 2>&1 &
     #gdb -ex r -ex bt -ex q --args ./examples/hotstuff-app --conf hotstuff-sec${i}.conf > log${i} 2>&1 &
-    ./smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer ${i} 1000 0 0 true nosig> log${i} 2>&1 &
+    ./smartrun.sh bftsmart.demo.microbenchmarks.ThroughputLatencyServer ${i} 100 0 0 true nosig> log${i} 2>&1 &
 done
 wait
 #$SERVER_NUMBER 50 100 100 1

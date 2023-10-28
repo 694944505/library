@@ -95,7 +95,7 @@ public class Accountability {
     }
     
     private void sendCheck(int[] targets, CertifiedDecision decision) {
-        System.out.println(controller.getStaticConf().getProcessId()+"send chekc to " + Arrays.toString(targets) + " " + decision.getCID() );
+       // System.out.println(controller.getStaticConf().getProcessId()+"send chekc to " + Arrays.toString(targets) + " " + decision.getCID() );
         proofExecutor.submit(() -> {
             ConsensusMessage check = factory.createCheck(decision.getCID(), 0, decision.getDecision(), decision.getReg());
             // Create a cryptographic proof for this CHECK message
